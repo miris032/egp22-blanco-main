@@ -27,11 +27,15 @@ public class KaffeeMain extends AbstractBehavior<KaffeeMain.StartMessage> {
     private Behavior<StartMessage> onStartMessage(StartMessage command) {
         //someActor.tell(new SomeActor.SomeMessage());
 
-        //Loadbalancer = new Loadbalancer();
-        //Kaffeekasse = new Kaffeekasse();
-        //Kaffeemaschine1 = new Kaffeemaschine();
-        //Kaffeemaschine2 = new Kaffeemaschine();
-        //Kaffeemaschine3 = new Kaffeemaschine();
+        /*Loadbalancer = new Loadbalancer();
+        Kaffeekasse = new Kaffeekasse();
+        Kaffeemaschine1 = new Kaffeemaschine(10);
+        Kaffeemaschine2 = new Kaffeemaschine(10);
+        Kaffeemaschine3 = new Kaffeemaschine(10);
+        Kaffeetrinkende1 = new Kaffeetrinkende();
+        Kaffeetrinkende2 = new Kaffeetrinkende();
+        Kaffeetrinkende3 = new Kaffeetrinkende();
+        Kaffeetrinkende4 = new Kaffeetrinkende();*/
 
 
         return this;

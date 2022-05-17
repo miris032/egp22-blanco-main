@@ -1,4 +1,5 @@
 package com.example;
+
 import akka.actor.typed.Behavior;
 import akka.actor.typed.javadsl.AbstractBehavior;
 import akka.actor.typed.javadsl.ActorContext;
@@ -6,20 +7,18 @@ import akka.actor.typed.javadsl.Behaviors;
 import akka.actor.typed.javadsl.Receive;
 
 
-public class Kaffeemaschine extends AbstractBehavior<Kaffeemaschine.SomeMessage> {
-
-    private int Vorrat;
+public class Kaffeetrinkende extends AbstractBehavior<Kaffeetrinkende.SomeMessage> {
 
     private final int someAttribute;
     public static final class SomeMessage {}
 
 
     public static Behavior<SomeMessage> create(int someAttribute) {
-        return Behaviors.setup(context -> new Kaffeemaschine(context, someAttribute));
+        return Behaviors.setup(context -> new Kaffeetrinkende(context, someAttribute));
     }
 
 
-    private Kaffeemaschine(ActorContext<SomeMessage> context, int someAttribute) {
+    private Kaffeetrinkende(ActorContext<SomeMessage> context, int someAttribute) {
         super(context);
         this.someAttribute = someAttribute;
     }

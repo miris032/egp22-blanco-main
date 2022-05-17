@@ -1,36 +1,59 @@
 package com.example;
+import akka.actor.ActorRef;
 import akka.actor.typed.Behavior;
 import akka.actor.typed.javadsl.AbstractBehavior;
 import akka.actor.typed.javadsl.ActorContext;
 import akka.actor.typed.javadsl.Behaviors;
 import akka.actor.typed.javadsl.Receive;
+import uebung04.Lagerist;
 
 
-public class Kaffeekasse extends AbstractBehavior<Kaffeekasse.SomeMessage> {
+public class Kaffeekasse extends AbstractBehavior<Kaffeekasse.Request> {
 
-    private final int someAttribute;
-    public static final class SomeMessage {}
+    private int Guthaben;
+    public interface Request {}
+    public static final class aufladen implements Request {
+        public final ActorRef<Kaffeetrinkende.Response> sender;
+        public aufladen(ActorRef<Kaffeetrinkende.Response> sender) {
+            this.sender = sender;
+        }
+    }
+    //public static final class Success {}
+    //public static final class Fail {}
 
 
-    public static Behavior<SomeMessage> create(int someAttribute) {
-      return Behaviors.setup(context -> new Kaffeekasse(context, someAttribute));
+
+
+    public static Behavior<Request> create(int Guthaben) {
+      return Behaviors.setup(context -> new Kaffeekasse(context, Guthaben));
     }
 
 
-    private Kaffeekasse(ActorContext<SomeMessage> context, int someAttribute) {
+    //Constructor
+    private Kaffeekasse(ActorContext<Request> context, int Guthaben) {
       super(context);
-      this.someAttribute = someAttribute;
+      this.Guthaben = Guthaben;
     }
 
 
     @Override
-    public Receive<SomeMessage> createReceive() {
-      return newReceiveBuilder().onMessage(SomeMessage.class, this::onSomeMessage).build();
+    public Receive<Request> createReceive() {
+      return newReceiveBuilder()
+              .onMessage(Request.class, this::onSomeMessage)
+              .build();
     }
 
 
-    private Behavior<SomeMessage> onSomeMessage(SomeMessage command) {
-      getContext().getLog().info("Got a message. My attribute is {}!", someAttribute);
+    private Behavior<Request> wennAufladen(aufladen request) {
+        getContext().getLog().info("Got a put request from {} ({})!", request.sender.path(), lagerbestand);
+        this.Guthaben += 1;
+        request.sender.tell(new Kaffeetrinkende().Success());
+        return this;
+    }
+
+
+    private Behavior<Request> onSomeMessage(Request command) {
+      getContext().getLog().info("Got a message. My attribute is {}!", Guthaben);
       return this;
     }
 }
