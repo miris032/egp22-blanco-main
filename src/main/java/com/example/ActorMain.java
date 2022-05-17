@@ -7,7 +7,7 @@ import akka.actor.typed.javadsl.*;
 public class ActorMain extends AbstractBehavior<ActorMain.StartMessage> {
 
     public static class StartMessage {}
-    // lskdjfkdjgsdkfjlaskjdf
+    // lskdjfkdjgsdkf
 
     ActorRef<SomeActor.SomeMessage> someActor;
 
