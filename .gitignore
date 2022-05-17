@@ -1,0 +1,17 @@
+target/
+
+.settings
+.project
+.classpath
+
+.idea
+*.iml
+
+.metals
+.bloop
+
+
+# Project exclude paths
+/.gradle/
+/build/
+/build/classes/java/main/
