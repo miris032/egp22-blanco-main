@@ -25,7 +25,15 @@ public class KaffeeMain extends AbstractBehavior<KaffeeMain.StartMessage> {
 
 
     private Behavior<StartMessage> onStartMessage(StartMessage command) {
-        someActor.tell(new SomeActor.SomeMessage());
+        //someActor.tell(new SomeActor.SomeMessage());
+
+        //Loadbalancer = new Loadbalancer();
+        //Kaffeekasse = new Kaffeekasse();
+        //Kaffeemaschine1 = new Kaffeemaschine();
+        //Kaffeemaschine2 = new Kaffeemaschine();
+        //Kaffeemaschine3 = new Kaffeemaschine();
+
+
         return this;
     }
 }
