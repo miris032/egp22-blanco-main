@@ -4,17 +4,17 @@ import akka.actor.typed.ActorRef;
 import akka.actor.typed.Behavior;
 import akka.actor.typed.javadsl.*;
 
-public class ActorMain extends AbstractBehavior<ActorMain.StartMessage> {
+public class KaffeeMain extends AbstractBehavior<KaffeeMain.StartMessage> {
 
     public static class StartMessage {}
 
     ActorRef<SomeActor.SomeMessage> someActor;
 
     public static Behavior<StartMessage> create() {
-        return Behaviors.setup(ActorMain::new);
+        return Behaviors.setup(KaffeeMain::new);
     }
 
-    private ActorMain(ActorContext<StartMessage> context) {
+    private KaffeeMain(ActorContext<StartMessage> context) {
         super(context);
         someActor = context.spawn(SomeActor.create(37), "someActor");
     }
