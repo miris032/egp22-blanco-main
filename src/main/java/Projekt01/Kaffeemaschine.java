@@ -1,12 +1,10 @@
-package com.example;
+package Projekt01;
 import akka.actor.ActorRef;
 import akka.actor.typed.Behavior;
 import akka.actor.typed.javadsl.AbstractBehavior;
 import akka.actor.typed.javadsl.ActorContext;
 import akka.actor.typed.javadsl.Behaviors;
 import akka.actor.typed.javadsl.Receive;
-import uebung04.Lagerist;
-import uebung04.Lagerverwaltung;
 
 
 public class Kaffeemaschine extends AbstractBehavior<Kaffeemaschine.Request> {
@@ -14,7 +12,7 @@ public class Kaffeemaschine extends AbstractBehavior<Kaffeemaschine.Request> {
     private int Vorrat;
     public interface Request {}
     public static final class make implements Kaffeemaschine.Request {
-        public final ActorRef<Loadbalancer.Response> sender;
+        public ActorRef<Loadbalancer.Response> sender;
         public make(ActorRef<Loadbalancer.Response> sender) {
             this.sender = sender;
         }

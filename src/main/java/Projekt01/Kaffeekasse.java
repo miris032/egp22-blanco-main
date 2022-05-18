@@ -1,4 +1,4 @@
-package com.example;
+package Projekt01;
 import akka.actor.ActorRef;
 import akka.actor.typed.Behavior;
 import akka.actor.typed.javadsl.AbstractBehavior;
@@ -11,9 +11,9 @@ public class Kaffeekasse extends AbstractBehavior<Kaffeekasse.Request> {
 
     private int Guthaben;
     public interface Request {}
-    //public interface Response {}
+    public interface Response {}
     public static final class aufladen implements Request {
-        public final ActorRef<Kaffeetrinkende.Response> sender;
+        public ActorRef<Kaffeetrinkende.Response> sender;
         public aufladen(ActorRef<Kaffeetrinkende.Response> sender) {
             this.sender = sender;
         }
@@ -43,7 +43,7 @@ public class Kaffeekasse extends AbstractBehavior<Kaffeekasse.Request> {
     private Behavior<Request> wennAufladen(aufladen request) {
         getContext().getLog().info("Laden 1 Euro für {} ({})!", request.sender.path(), Guthaben);
         this.Guthaben += 1;
-        request.sender.tell(new Kaffeetrinkende().Success());
+        request.sender.tell(new Kaffeetrinkende.Success());
         return this;
     }
 

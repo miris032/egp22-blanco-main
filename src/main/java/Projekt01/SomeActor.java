@@ -1,9 +1,6 @@
-package com.example;
-import akka.actor.typed.ActorRef;
+package Projekt01;
 import akka.actor.typed.Behavior;
 import akka.actor.typed.javadsl.*;
-
-import java.util.Objects;
 
 
 public class SomeActor extends AbstractBehavior<SomeActor.SomeMessage> {

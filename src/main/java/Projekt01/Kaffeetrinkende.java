@@ -1,4 +1,4 @@
-package uebung04;
+package Projekt01;
 import akka.actor.typed.ActorRef;
 import akka.actor.typed.Behavior;
 import akka.actor.typed.javadsl.AbstractBehavior;
@@ -7,29 +7,29 @@ import akka.actor.typed.javadsl.Behaviors;
 import akka.actor.typed.javadsl.Receive;
 
 
-public class Lagerist extends AbstractBehavior<Lagerist.Response> {
+public class Kaffeetrinkende extends AbstractBehavior<Kaffeetrinkende.Response> {
 
-    private final ActorRef<Lagerverwaltung.Request> lagerverwaltung;
+    private final ActorRef<Kaffeekasse.Request> kaffeekasse;
     public interface Response {}
     public static final class Success implements Response {}
     public static final class Fail implements Response {}
 
 
-    public static Behavior<Response> create(ActorRef<Lagerverwaltung.Request> lagerverwaltung) {
-        return Behaviors.setup(context -> new Lagerist(context, lagerverwaltung));
+    public static Behavior<Response> create(ActorRef<Kaffeekasse.Request> kaffeekasse) {
+        return Behaviors.setup(context -> new Kaffeetrinkende(context, kaffeekasse));
     }
 
 
     //Constructor
-    private Lagerist(ActorContext<Response> context, ActorRef<Lagerverwaltung.Request> lagerverwaltung) {
+    private Kaffeetrinkende(ActorContext<Response> context, ActorRef<Kaffeekasse.Request> kaffeekasse) {
         super(context);
-        this.lagerverwaltung = lagerverwaltung;
+        this.kaffeekasse = kaffeekasse;
 
-        if (Math.random() < 0.5) {
-            lagerverwaltung.tell(new Lagerverwaltung.Get(this.getContext().getSelf()));
+        /*if (Math.random() < 0.5) {
+            kaffeekasse.tell(new Kaffeekasse.aufladen(this.getContext().getSelf()));
         } else {
-            lagerverwaltung.tell(new Lagerverwaltung.Put(this.getContext().getSelf()));
-        }
+            kaffeekasse.tell(new Kaffeekasse.Put(this.getContext().getSelf()));
+        }*/
     }
 
 
@@ -44,11 +44,10 @@ public class Lagerist extends AbstractBehavior<Lagerist.Response> {
 
     private Behavior<Response> onSuccess(Success command) {
         getContext().getLog().info("Success");
-        if (Math.random() < 0.5) {
-            lagerverwaltung.tell(new Lagerverwaltung.Get(this.getContext().getSelf()));
-        } else {
-            lagerverwaltung.tell(new Lagerverwaltung.Put(this.getContext().getSelf()));
-        }
+
+        //if...else
+        kaffeekasse.tell(new Kaffeekasse.aufladen(this.getContext().getSelf()));
+
         return this;
     }
 
@@ -57,4 +56,6 @@ public class Lagerist extends AbstractBehavior<Lagerist.Response> {
         getContext().getLog().info("Fail");
         return Behaviors.stopped();
     }
+
+
 }

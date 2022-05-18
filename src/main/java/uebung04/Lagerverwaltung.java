@@ -28,10 +28,13 @@ public class Lagerverwaltung extends AbstractBehavior<Lagerverwaltung.Request> {
         return Behaviors.setup(context -> new Lagerverwaltung(context, lagerbestand));
     }
 
+
+    //Constructor
     private Lagerverwaltung(ActorContext<Request> context, int lagerbestand) {
         super(context);
         this.lagerbestand = lagerbestand;
     }
+
 
     @Override
     public Receive<Request> createReceive() {
@@ -41,12 +44,14 @@ public class Lagerverwaltung extends AbstractBehavior<Lagerverwaltung.Request> {
                 .build();
     }
 
+
     private Behavior<Request> onPut(Put request) {
         getContext().getLog().info("Got a put request from {} ({})!", request.sender.path(), lagerbestand);
         this.lagerbestand += 1;
         request.sender.tell(new Lagerist.Success());
         return this;
     }
+
 
     private Behavior<Request> onGet(Get request) {
         getContext().getLog().info("Got a get request from {} ({})!", request.sender.path(), lagerbestand);

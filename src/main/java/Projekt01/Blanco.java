@@ -1,4 +1,4 @@
-package com.example;
+package Projekt01;
 import akka.actor.typed.ActorSystem;
 
 import java.io.IOException;
