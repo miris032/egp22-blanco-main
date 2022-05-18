@@ -6,7 +6,7 @@ import akka.actor.typed.javadsl.ActorContext;
 import akka.actor.typed.javadsl.Behaviors;
 import akka.actor.typed.javadsl.Receive;
 import uebung04.Lagerist;
-
+//123
 
 public class Kaffeekasse extends AbstractBehavior<Kaffeekasse.Request> {
 
