@@ -5,21 +5,19 @@ import akka.actor.typed.javadsl.AbstractBehavior;
 import akka.actor.typed.javadsl.ActorContext;
 import akka.actor.typed.javadsl.Behaviors;
 import akka.actor.typed.javadsl.Receive;
-import uebung04.Lagerist;
 
 
 public class Kaffeekasse extends AbstractBehavior<Kaffeekasse.Request> {
 
     private int Guthaben;
     public interface Request {}
+    public interface Response {}
     public static final class aufladen implements Request {
         public final ActorRef<Kaffeetrinkende.Response> sender;
         public aufladen(ActorRef<Kaffeetrinkende.Response> sender) {
             this.sender = sender;
         }
     }
-    //public static final class Success {}
-    //public static final class Fail {}
 
 
     public static Behavior<Request> create(int Guthaben) {
@@ -43,15 +41,11 @@ public class Kaffeekasse extends AbstractBehavior<Kaffeekasse.Request> {
 
 
     private Behavior<Request> wennAufladen(aufladen request) {
-        getContext().getLog().info("Got a put request from {} ({})!", request.sender.path(), lagerbestand);
+        getContext().getLog().info("Laden 1 Euro für {} ({})!", request.sender.path(), Guthaben);
         this.Guthaben += 1;
         request.sender.tell(new Kaffeetrinkende().Success());
         return this;
     }
 
 
-    private Behavior<Request> onSomeMessage(Request command) {
-      getContext().getLog().info("Got a message. My attribute is {}!", Guthaben);
-      return this;
-    }
 }

@@ -1,4 +1,5 @@
 package com.example;
+import akka.actor.typed.ActorRef;
 import akka.actor.typed.Behavior;
 import akka.actor.typed.javadsl.AbstractBehavior;
 import akka.actor.typed.javadsl.ActorContext;
@@ -6,42 +7,49 @@ import akka.actor.typed.javadsl.Behaviors;
 import akka.actor.typed.javadsl.Receive;
 
 
-public class Loadbalancer extends AbstractBehavior<Loadbalancer.Request> {
+public class Loadbalancer extends AbstractBehavior<Loadbalancer.Response> {
 
-    private final int someAttribute;
-
+    private final ActorRef<Kaffeekasse.Request> Kaffeekasse;
     public interface Request {}
     public interface Response {}
-    public static final class Request {}
+    public static final class Success implements Response {}
+    public static final class Fail implements Response {}
 
 
-    public static Behavior<Request> create(int someAttribute) {
-      return Behaviors.setup(context -> new Loadbalancer(context, someAttribute));
+    public static Behavior<Response> create(ActorRef<Kaffeekasse.Request> Kaffeekasse) {
+      return Behaviors.setup(context -> new Loadbalancer(context, Kaffeekasse));
     }
 
 
-    private Loadbalancer(ActorContext<Request> context, int someAttribute) {
+    //Constructor
+    private Loadbalancer(ActorContext<Response> context, ActorRef<Kaffeekasse.Request> Kaffeekasse) {
       super(context);
-      this.someAttribute = someAttribute;
+      this.Kaffeekasse = Kaffeekasse;
     }
 
 
     @Override
-    public Receive<Request> createReceive() {
-      return newReceiveBuilder().onMessage(Request.class, this::onSomeMessage).build();
+    public Receive<Response> createReceive() {
+      return newReceiveBuilder()
+              .onMessage(Success.class, this::onSuccess)
+              .build();
     }
 
 
-    private Behavior<Request> onSomeMessage(Request command) {
-      getContext().getLog().info("Got a message. My attribute is {}!", someAttribute);
-      return this;
+    private Behavior<Response> onSuccess(Success command) {
+        getContext().getLog().info("Success");
+
+        //if...else
+        Kaffeekasse.tell(new Kaffeekasse.aufladen(this.getContext().getSelf()));
+
+        return this;
     }
 
 
-    /*private Behavior<Request> onPut(Put request) {
-
-    }*/
-
+    private Behavior<Response> onFail(Fail command) {
+        getContext().getLog().info("Fail");
+        return Behaviors.stopped();
+    }
 
 
 }
