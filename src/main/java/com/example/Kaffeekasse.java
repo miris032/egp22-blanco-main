@@ -21,7 +21,7 @@ public class Kaffeekasse extends AbstractBehavior<Kaffeekasse.Request> {
     //public static final class Success {}
     //public static final class Fail {}
 
-
+    //xixi
 
 
     public static Behavior<Request> create(int Guthaben) {
