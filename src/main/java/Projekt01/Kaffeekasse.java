@@ -11,7 +11,6 @@ public class Kaffeekasse extends AbstractBehavior<Kaffeekasse.Request> {
 
     private int Guthaben;
     public interface Request {}
-    public interface Response {}
     public static final class aufladen implements Request {
         public ActorRef<Kaffeetrinkende.Response> sender;
         public aufladen(ActorRef<Kaffeetrinkende.Response> sender) {
