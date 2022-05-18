@@ -6,7 +6,7 @@ import akka.actor.typed.javadsl.ActorContext;
 import akka.actor.typed.javadsl.Behaviors;
 import akka.actor.typed.javadsl.Receive;
 import uebung04.Lagerist;
-//123
+
 
 public class Kaffeekasse extends AbstractBehavior<Kaffeekasse.Request> {
 
@@ -21,8 +21,6 @@ public class Kaffeekasse extends AbstractBehavior<Kaffeekasse.Request> {
     //public static final class Success {}
     //public static final class Fail {}
 
-    //xixi
-/////啦啦啦啦啦
 
     public static Behavior<Request> create(int Guthaben) {
       return Behaviors.setup(context -> new Kaffeekasse(context, Guthaben));
@@ -39,7 +37,7 @@ public class Kaffeekasse extends AbstractBehavior<Kaffeekasse.Request> {
     @Override
     public Receive<Request> createReceive() {
       return newReceiveBuilder()
-              .onMessage(Request.class, this::onSomeMessage)
+              .onMessage(aufladen.class, this::wennAufladen)
               .build();
     }
 
