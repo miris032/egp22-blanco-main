@@ -9,7 +9,7 @@ import uebung04.Lagerist;
 import uebung04.Lagerverwaltung;
 
 
-public class Kaffeemaschine extends AbstractBehavior<Kaffeemaschine.SomeMessage> {
+public class Kaffeemaschine extends AbstractBehavior<Kaffeemaschine.Request> {
 
     private int Vorrat;
     public interface Request {}
