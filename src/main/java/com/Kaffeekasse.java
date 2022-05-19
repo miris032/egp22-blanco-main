@@ -40,7 +40,7 @@ public class Kaffeekasse extends AbstractBehavior<Kaffeekasse.Request> {
         super(context);
         this.Guthaben = Guthaben;
 
-        loadbalancer.tell(new Kaffeekasse.Pay(this.getContext().getSelf()));
+        //loadbalancer.tell(new Kaffeekasse.Pay(this.getContext().getSelf()));
 
     }
 
