@@ -39,7 +39,7 @@ public class Kaffeetrinkende extends AbstractBehavior<Kaffeetrinkende.Response> 
         if (Math.random() < 0.5) {
             kaffeekasse.tell(new Kaffeekasse.Charge(this.getContext().getSelf()));
         } else {
-
+            loadbalancer.tell(new Loadbalancer.KaffeeAbholung(this.getContext().getSelf()));
         }
     }
 
@@ -54,7 +54,15 @@ public class Kaffeetrinkende extends AbstractBehavior<Kaffeetrinkende.Response> 
 
 
     private Behavior<Response> onSuccess(Success command) {
-        getContext().getLog().info("Got a message. My attribute is {}!", kaffeekasse);
+        getContext().getLog().info("Successful recharge!");
+
+        // Wieder zufällig zwischen den beiden Optionen Guthaben aufladen
+        // oder Kaffee holen wählen.
+        if (Math.random() < 0.5) {
+            kaffeekasse.tell(new Kaffeekasse.Charge(this.getContext().getSelf()));
+        } else {
+
+        }
         return this;
     }
 

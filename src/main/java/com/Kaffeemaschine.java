@@ -12,10 +12,18 @@ public class Kaffeemaschine extends AbstractBehavior<Kaffeemaschine.Request> {
 
     public interface Request {}
     private int Vorrat;
-    public static final class make implements Request {
+
+    public static final class GetAmount implements Request {
         public ActorRef<Loadbalancer.Response> sender;
-        public make(ActorRef<Loadbalancer.Response> sender) {
+        public GetAmount(ActorRef<Loadbalancer.Response> sender) {
             this.sender = sender;
+        }
+    }
+
+    public static final class GetOneCoffee implements Request {
+        public ActorRef<Kaffeetrinkende.Response> sender2;  // sender2: Kaffeetrinkende
+        public GetOneCoffee(ActorRef<Kaffeetrinkende.Response> sender2) {
+            this.sender2 = sender2;
         }
     }
 
@@ -37,12 +45,13 @@ public class Kaffeemaschine extends AbstractBehavior<Kaffeemaschine.Request> {
     @Override
     public Receive<Request> createReceive() {
         return newReceiveBuilder()
-                .onMessage(make.class, this::onMake)
+                .onMessage(GetAmount.class, this::onGetAmount)
+                .onMessage(GetOneCoffee.class, this::onGetOneCoffee)
                 .build();
     }
 
 
-    private Behavior<Request> onMake(Kaffeemaschine.make request) {
+    private Behavior<Request> onGetAmount(GetAmount request) {
         getContext().getLog().info("Got a get request from {} ({})!", request.sender.path(), Vorrat);
         if (this.Vorrat > 0) {
             this.Vorrat -= 1;
@@ -52,4 +61,15 @@ public class Kaffeemaschine extends AbstractBehavior<Kaffeemaschine.Request> {
         }
         return this;
     }
+    
+    
+    private Behavior<Request> onGetOneCoffee(GetOneCoffee request) {
+        getContext().getLog().info("Got a getOneCoffee request from {} ({})!", request.sender2.path(), Vorrat);
+
+        // if GetAmount 检测
+        request.sender2.tell(new Kaffeetrinkende.Success());
+
+        return this;
+    }
+    
 }
