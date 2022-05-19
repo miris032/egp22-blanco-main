@@ -27,12 +27,20 @@ public class Kaffeetrinkende extends AbstractBehavior<Kaffeetrinkende.Response> 
     }
 
 
-    //Constructor
+    // Constructor
     private Kaffeetrinkende(ActorContext<Response> context, ActorRef<Kaffeekasse.Request> kaffeekasse, ActorRef<Loadbalancer.Response> loadbalancer, ActorRef<Kaffeemaschine.Request> kaffeemaschine) {
         super(context);
         this.kaffeekasse = kaffeekasse;
         this.loadbalancer = loadbalancer;
         this.kaffeemaschine = kaffeemaschine;
+
+        // Die Kaffeetrinkenden entscheiden sich jeweils zufällig zwischen
+        // den beiden Optionen Guthaben aufladen oder Kaffee holen.
+        if (Math.random() < 0.5) {
+            kaffeekasse.tell(new Kaffeekasse.Charge(this.getContext().getSelf()));
+        } else {
+
+        }
     }
 
 
@@ -40,6 +48,7 @@ public class Kaffeetrinkende extends AbstractBehavior<Kaffeetrinkende.Response> 
     public Receive<Response> createReceive() {
         return newReceiveBuilder()
                 .onMessage(Success.class, this::onSuccess)
+                .onMessage(Fail.class, this::onFail)
                 .build();
     }
 
@@ -47,5 +56,11 @@ public class Kaffeetrinkende extends AbstractBehavior<Kaffeetrinkende.Response> 
     private Behavior<Response> onSuccess(Success command) {
         getContext().getLog().info("Got a message. My attribute is {}!", kaffeekasse);
         return this;
+    }
+
+
+    private Behavior<Response> onFail(Fail command) {
+        getContext().getLog().info("Fail");
+        return Behaviors.stopped();
     }
 }

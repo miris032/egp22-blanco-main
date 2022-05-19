@@ -27,7 +27,7 @@ public class Kaffeemaschine extends AbstractBehavior<Kaffeemaschine.Request> {
     }
 
 
-    //Constructor
+    // Constructor
     private Kaffeemaschine(ActorContext<Request> context, int vorrat) {
         super(context);
         this.Vorrat = vorrat;
