@@ -20,6 +20,7 @@ public class Loadbalancer extends AbstractBehavior<Loadbalancer.Response> {
     }
 
 
+    //Constructor
     private Loadbalancer(ActorContext<Response> context, ActorRef<Kaffeekasse.Request> kaffeekasse2) {
         super(context);
         this.kaffeekasse2 = kaffeekasse2;

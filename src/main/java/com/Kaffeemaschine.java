@@ -10,7 +10,7 @@ import akka.actor.typed.javadsl.Receive;
 public class Kaffeemaschine extends AbstractBehavior<Kaffeemaschine.Request> {
 
     public interface Request {}
-    private final int Vorrat;
+    private int Vorrat;
     public static final class make implements Request {
         public ActorRef<Loadbalancer.Response> sender;
         public make(ActorRef<Loadbalancer.Response> sender) {
@@ -39,8 +39,14 @@ public class Kaffeemaschine extends AbstractBehavior<Kaffeemaschine.Request> {
     }
 
 
-    private Behavior<Request> onMake(Request command) {
-        getContext().getLog().info("Got a message. My attribute is {}!", Vorrat);
+    private Behavior<Request> onMake(Kaffeemaschine.make request) {
+        getContext().getLog().info("Got a get request from {} ({})!", request.sender.path(), Vorrat);
+        if (this.Vorrat > 0) {
+            this.Vorrat -= 1;
+            request.sender.tell(new Loadbalancer.Success());
+        } else {
+            request.sender.tell(new Loadbalancer.Fail());
+        }
         return this;
     }
 }

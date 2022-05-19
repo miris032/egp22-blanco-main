@@ -20,6 +20,7 @@ public class Kaffeetrinkende extends AbstractBehavior<Kaffeetrinkende.Response> 
     }
 
 
+    //Constructor
     private Kaffeetrinkende(ActorContext<Response> context, ActorRef<Kaffeekasse.Request> kaffeekasse2) {
         super(context);
         this.kaffeekasse2 = kaffeekasse2;
@@ -28,7 +29,9 @@ public class Kaffeetrinkende extends AbstractBehavior<Kaffeetrinkende.Response> 
 
     @Override
     public Receive<Response> createReceive() {
-        return newReceiveBuilder().onMessage(Success.class, this::onSuccess).build();
+        return newReceiveBuilder()
+                .onMessage(Success.class, this::onSuccess)
+                .build();
     }
 
 

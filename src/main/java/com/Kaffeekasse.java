@@ -7,37 +7,42 @@ import akka.actor.typed.javadsl.Behaviors;
 import akka.actor.typed.javadsl.Receive;
 
 
-public class Kaffeekasse extends AbstractBehavior<Kaffeekasse.Aufladen> {
+public class Kaffeekasse extends AbstractBehavior<Kaffeekasse.Charge> {
 
     public interface Request {}
-    private final int Guthaben;
-    public static final class Aufladen {
+    private int Guthaben;
+    public static final class Charge {
         public ActorRef<Kaffeetrinkende.Response> sender;
-        public Aufladen(ActorRef<Kaffeetrinkende.Response> sender) {
+        public Charge(ActorRef<Kaffeetrinkende.Response> sender) {
             this.sender = sender;
         }
     }
 
 
-    public static Behavior<Aufladen> create(int Guthaben) {
+    public static Behavior<Charge> create(int Guthaben) {
         return Behaviors.setup(context -> new Kaffeekasse(context, Guthaben));
     }
 
 
-    private Kaffeekasse(ActorContext<Aufladen> context, int Guthaben) {
+    //Constructor
+    private Kaffeekasse(ActorContext<Charge> context, int Guthaben) {
         super(context);
         this.Guthaben = Guthaben;
     }
 
 
     @Override
-    public Receive<Aufladen> createReceive() {
-        return newReceiveBuilder().onMessage(Aufladen.class, this::onAufladen).build();
+    public Receive<Charge> createReceive() {
+        return newReceiveBuilder()
+                .onMessage(Charge.class, this::onCharge)
+                .build();
     }
 
 
-    private Behavior<Aufladen> onAufladen(Aufladen command) {
-        getContext().getLog().info("Got a message. My attribute is {}!", Guthaben);
+    private Behavior<Charge> onCharge(Charge request) {
+        getContext().getLog().info("charge 1 Euro for {}!", Guthaben);
+        this.Guthaben += 1;
+        request.sender.tell(new Kaffeetrinkende.Success());
         return this;
     }
 }
