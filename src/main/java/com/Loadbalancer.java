@@ -9,21 +9,28 @@ import akka.actor.typed.javadsl.Receive;
 
 public class Loadbalancer extends AbstractBehavior<Loadbalancer.Response> {
 
+
     public interface Response {}
-    private final ActorRef<Kaffeekasse.Request> kaffeekasse2;
+
+    private final ActorRef<Kaffeekasse.Request> kaffeekasse;
+    private final ActorRef<Kaffeemaschine.Request> kaffeemaschine;
+
     public static final class Success implements Response {}
     public static final class Fail implements Response {}
 
 
-    public static Behavior<Response> create(ActorRef<Kaffeekasse.Request> kaffeekasse2) {
-        return Behaviors.setup(context -> new Loadbalancer(context, kaffeekasse2));
+
+
+    public static Behavior<Response> create(ActorRef<Kaffeekasse.Request> kaffeekasse, ActorRef<Kaffeemaschine.Request> kaffeemaschine) {
+        return Behaviors.setup(context -> new Loadbalancer(context, kaffeekasse, kaffeemaschine));
     }
 
 
     //Constructor
-    private Loadbalancer(ActorContext<Response> context, ActorRef<Kaffeekasse.Request> kaffeekasse2) {
+    private Loadbalancer(ActorContext<Response> context, ActorRef<Kaffeekasse.Request> kaffeekasse, ActorRef<Kaffeemaschine.Request> kaffeemaschine) {
         super(context);
-        this.kaffeekasse2 = kaffeekasse2;
+        this.kaffeekasse = kaffeekasse;
+        this.kaffeemaschine = kaffeemaschine;
     }
 
 
@@ -37,13 +44,13 @@ public class Loadbalancer extends AbstractBehavior<Loadbalancer.Response> {
 
 
     private Behavior<Response> onSuccess(Response command) {
-        getContext().getLog().info("Got a message. My attribute is {}!", kaffeekasse2);
+        getContext().getLog().info("Got a message. My attribute is {}!", kaffeekasse);
         return this;
     }
 
 
     private Behavior<Response> onFail(Response command) {
-        getContext().getLog().info("Got a message. My attribute is {}!", kaffeekasse2);
+        getContext().getLog().info("Got a message. My attribute is {}!", kaffeekasse);
         return this;
     }
 }

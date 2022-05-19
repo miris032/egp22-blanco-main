@@ -9,6 +9,7 @@ import akka.actor.typed.javadsl.Receive;
 
 public class Kaffeemaschine extends AbstractBehavior<Kaffeemaschine.Request> {
 
+
     public interface Request {}
     private int Vorrat;
     public static final class make implements Request {
@@ -17,6 +18,8 @@ public class Kaffeemaschine extends AbstractBehavior<Kaffeemaschine.Request> {
             this.sender = sender;
         }
     }
+
+
 
 
     public static Behavior<Request> create(int Vorrat) {

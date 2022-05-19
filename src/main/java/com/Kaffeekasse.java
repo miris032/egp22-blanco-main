@@ -9,6 +9,7 @@ import akka.actor.typed.javadsl.Receive;
 
 public class Kaffeekasse extends AbstractBehavior<Kaffeekasse.Charge> {
 
+
     public interface Request {}
     private int Guthaben;
     public static final class Charge {
@@ -17,6 +18,8 @@ public class Kaffeekasse extends AbstractBehavior<Kaffeekasse.Charge> {
             this.sender = sender;
         }
     }
+
+
 
 
     public static Behavior<Charge> create(int Guthaben) {
