@@ -16,8 +16,11 @@ public class Loadbalancer extends AbstractBehavior<Loadbalancer.Response> {
     private final ActorRef<Kaffeekasse.Request> kaffeekasse;
     private final ActorRef<Kaffeemaschine.Request> kaffeemaschine;
 
-    public static final class Success implements Response {}
-    public static final class Fail implements Response {}
+    public static final class MoneySuccess implements Response {}
+    public static final class MoneyFail implements Response {}
+    public static final class CoffeeSuccess implements Response {}
+    public static final class CoffeeFail implements Response {}
+
 
     public static final class KaffeeAbholung implements Request {
         public final ActorRef<Kaffeetrinkende.Response> sender;
@@ -45,8 +48,10 @@ public class Loadbalancer extends AbstractBehavior<Loadbalancer.Response> {
     @Override
     public Receive<Response> createReceive() {
         return newReceiveBuilder()
-                .onMessage(Success.class, this::onSuccess)
-                .onMessage(Fail.class, this::onFail)
+                .onMessage(MoneySuccess.class, this::onMoneySuccess)
+                .onMessage(MoneyFail.class, this::onMoneyFail)
+                .onMessage(CoffeeSuccess.class, this::onCoffeeSuccess)
+                .onMessage(CoffeeFail.class, this::onCoffeeFail)
                 .build();
     }
 
@@ -58,32 +63,36 @@ public class Loadbalancer extends AbstractBehavior<Loadbalancer.Response> {
     }
 
 
-    private Behavior<Response> onSuccess(Response command) {
+    private Behavior<Response> onMoneySuccess(Response command) {
         // 此时已经检查完账户里有足够的钱了
         getContext().getLog().info("Has enough money!");
 
 
         //TODO
-        // 接下来询问咖啡机里咖啡的数量
-        kaffeemaschine.tell(new Kaffeemaschine.GetAmount(this.getContext().getSelf()));
-        if (/*咖啡机里还有咖啡*/) {
-            kaffeemaschine.tell(new Kaffeemaschine.GetOneCoffee(this.getContext().getSelf()));
-        }
+        // 接下来直接取咖啡，不用单独写返回咖啡数量的方法？
+        kaffeemaschine.tell(new Kaffeemaschine.GetOneCoffee(this.getContext().getSelf()));
+
         return this;
     }
 
 
-    /*private Behavior<Response> onFail(Response command) {
-        getContext().getLog().info("balance is insufficient, by {}!", kaffeekasse);
-
-        return this;
-    }*/
-
-
-    private Behavior<Response> onFail(Fail response) {
+    private Behavior<Response> onMoneyFail(MoneyFail response) {
         getContext().getLog().info("money is not enough!");
         //getContext().getLog().info("balance is insufficient, by {}!", loadbalancer);
         //response.sender.tell(new Kaffeetrinkende.Fail());
         return this;
     }
+
+
+    private Behavior<Response> onCoffeeSuccess(CoffeeSuccess response) {
+
+        return this;
+    }
+
+
+    private Behavior<Response> onCoffeeFail(CoffeeFail response) {
+
+        return this;
+    }
+
 }

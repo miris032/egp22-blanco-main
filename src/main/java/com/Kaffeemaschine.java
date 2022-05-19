@@ -68,6 +68,17 @@ public class Kaffeemaschine extends AbstractBehavior<Kaffeemaschine.Request> {
         }
         return this;
     }*/
+
+
+
+
+    //TODO
+    //还是得写返回数量
+
+
+
+
+
     
 
     // 取一个咖啡
@@ -79,9 +90,9 @@ public class Kaffeemaschine extends AbstractBehavior<Kaffeemaschine.Request> {
 
         if (this.Vorrat > 0) {
             this.Vorrat -= 1;
-            request.sender.tell(new Loadbalancer.Success());
+            request.sender.tell(new Loadbalancer.CoffeeSuccess());
         } else {
-            request.sender.tell(new Loadbalancer.Fail());
+            request.sender.tell(new Loadbalancer.CoffeeFail());
         }
         return this;
     }
