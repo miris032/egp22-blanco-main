@@ -51,6 +51,13 @@ public class Loadbalancer extends AbstractBehavior<Loadbalancer.Response> {
     }
 
 
+    private Behavior<Request> onKaffeeAbholung(KaffeeAbholung request) {
+        getContext().getLog().info("Got a put request from {} ({})!", request.sender.path());
+
+        return this;
+    }
+
+
     private Behavior<Response> onSuccess(Response command) {
         // 此时已经检查完账户里有足够的钱了
         getContext().getLog().info("Has enough money!");
