@@ -54,6 +54,7 @@ public class Kaffeekasse extends AbstractBehavior<Kaffeekasse.Request> {
     }
 
 
+    // Fall 1
     // Guthaben aufladen
     private Behavior<Request> onRecharge(Recharge request) {
         getContext().getLog().info("recharge 1 Euro for {} ({})!", request.sender.path(), Guthaben);
@@ -76,7 +77,7 @@ public class Kaffeekasse extends AbstractBehavior<Kaffeekasse.Request> {
 
         // Fall 3: 账户里没有足够的钱
         else {
-            request.sender.tell(new Loadbalancer.MoneyNotEnouth());
+            request.sender.tell(new Loadbalancer.MoneyNotEnough());
         }
         return this;
     }
