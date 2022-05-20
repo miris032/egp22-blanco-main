@@ -5,6 +5,8 @@ import akka.actor.typed.javadsl.AbstractBehavior;
 import akka.actor.typed.javadsl.ActorContext;
 import akka.actor.typed.javadsl.Behaviors;
 import akka.actor.typed.javadsl.Receive;
+import uebung04.Lagerist;
+import uebung04.Lagerverwaltung;
 
 
 public class Loadbalancer extends AbstractBehavior<Loadbalancer.Response> {
@@ -52,14 +54,11 @@ public class Loadbalancer extends AbstractBehavior<Loadbalancer.Response> {
                 .build();
     }
 
-
-    private Behavior<Request> onZuKaffeeAbholung(ZuKaffeeAbholung request) {
-        //getContext().getLog().info("Got a put request from {} ({})!", request.sender.path());
-
+    private Loadbalancer(ActorContext<Loadbalancer.Response> context, ActorRef<Kaffeekasse.Request> kaffeekasse) {
+        super(context);
+        this.kaffeekasse = kaffeekasse;
         kaffeekasse.tell(new Kaffeekasse.Pay(this.getContext().getSelf()));
-        return this;
     }
-
 
     private Behavior<Response> onMoneyEnough(Response command) {
 
