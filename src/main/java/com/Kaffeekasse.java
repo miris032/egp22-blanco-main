@@ -67,15 +67,16 @@ public class Kaffeekasse extends AbstractBehavior<Kaffeekasse.Request> {
     // bezahlen für eine Kaffee
     private Behavior<Request> onPay(Pay request) {
         getContext().getLog().info("Got a pay request from {} ({})!", request.sender.path(), Guthaben);
-        // Fall 2
+
+        // Fall 2: 账户里有足够的钱
         if (this.Guthaben > 0) {
             this.Guthaben -= 1;
-            request.sender.tell(new Loadbalancer.Success());
+            request.sender.tell(new Loadbalancer.MoneyEnough());
         }
-        // Fall 3
-        else {
 
-            request.sender.tell(new Loadbalancer.Fail());
+        // Fall 3: 账户里没有足够的钱
+        else {
+            request.sender.tell(new Loadbalancer.MoneyNotEnouth());
         }
         return this;
     }

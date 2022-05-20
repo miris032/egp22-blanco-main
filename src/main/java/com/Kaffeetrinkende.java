@@ -54,14 +54,14 @@ public class Kaffeetrinkende extends AbstractBehavior<Kaffeetrinkende.Response> 
 
 
     private Behavior<Response> onSuccess(Success command) {
-        getContext().getLog().info("Successful recharge!");
+        getContext().getLog().info("Successful!");
 
         // Die Kaffeetrinkenden entscheiden sich jeweils zufällig zwischen den beiden Optionen Guthaben aufladen oder Kaffee holen
         // Fall 1: Guthaben aufladen
         if (Math.random() < 0.5) {
             kaffeekasse.tell(new Kaffeekasse.Charge(this.getContext().getSelf()));
         }
-        // Fall 2 &3 &4: Kaffee holen
+        // Fall 2 &3 &4: zu Kaffee abholen
         else {
             loadbalancer.tell(new Loadbalancer.KaffeeAbholung(this.getContext().getSelf()));
         }
@@ -73,4 +73,5 @@ public class Kaffeetrinkende extends AbstractBehavior<Kaffeetrinkende.Response> 
         getContext().getLog().info("Fail");
         return Behaviors.stopped();
     }
+
 }

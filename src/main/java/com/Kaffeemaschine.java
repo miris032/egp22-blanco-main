@@ -13,7 +13,7 @@ public class Kaffeemaschine extends AbstractBehavior<Kaffeemaschine.Request> {
     public interface Request {}
     private int Vorrat;
 
-    /*public static final class GetAmount implements Request {
+    public static final class GetAmount implements Request {
         public ActorRef<Loadbalancer.Response> sender;
         public GetAmount(ActorRef<Loadbalancer.Response> sender) {
             this.sender = sender;
@@ -21,15 +21,8 @@ public class Kaffeemaschine extends AbstractBehavior<Kaffeemaschine.Request> {
     }
 
     public static final class GetOneCoffee implements Request {
-        public ActorRef<Kaffeetrinkende.Response> sender2;  // sender2: Kaffeetrinkende
-        public GetOneCoffee(ActorRef<Kaffeetrinkende.Response> sender2) {
-            this.sender2 = sender2;
-        }
-    }*/
-
-    public static final class GetOneCoffee implements Request {
-        public ActorRef<Loadbalancer.Response> sender;
-        public GetOneCoffee(ActorRef<Loadbalancer.Response> sender) {
+        public ActorRef<Kaffeetrinkende.Response> sender;
+        public GetOneCoffee(ActorRef<Kaffeetrinkende.Response> sender) {
             this.sender = sender;
         }
     }
@@ -52,12 +45,12 @@ public class Kaffeemaschine extends AbstractBehavior<Kaffeemaschine.Request> {
     @Override
     public Receive<Request> createReceive() {
         return newReceiveBuilder()
+                .onMessage(GetAmount.class, this::onGetAmount)
                 .onMessage(GetOneCoffee.class, this::onGetOneCoffee)
                 .build();
     }
 
 
-    // 询问数量
     /*private Behavior<Request> onGetAmount(GetAmount request) {
         getContext().getLog().info("Got a get request from {} ({})!", request.sender.path(), Vorrat);
         if (this.Vorrat > 0) {
@@ -72,9 +65,15 @@ public class Kaffeemaschine extends AbstractBehavior<Kaffeemaschine.Request> {
 
 
 
-    //TODO
-    //还是得写返回数量
+    // 询问咖啡存量
+    private Behavior<Request> onGetAmount(GetAmount request) {
+        if (this.Vorrat > 0) {
+            request.sender.tell(new Loadbalancer.CoffeeEnough());
 
+            // TODO 怎么把存量Vorrat返回给Loadbalancer？
+        }
+        return this;
+    }
 
 
 
@@ -86,14 +85,9 @@ public class Kaffeemaschine extends AbstractBehavior<Kaffeemaschine.Request> {
         getContext().getLog().info("Got a getOneCoffee request from {} ({})!", request.sender.path(), Vorrat);
 
         // if GetAmount 检测
-        // request.sender2.tell(new Kaffeetrinkende.Success());
 
-        if (this.Vorrat > 0) {
-            this.Vorrat -= 1;
-            request.sender.tell(new Loadbalancer.CoffeeSuccess());
-        } else {
-            request.sender.tell(new Loadbalancer.CoffeeFail());
-        }
+        this.Vorrat -= 1;
+        request.sender.tell(new Kaffeetrinkende.Success());
         return this;
     }
     

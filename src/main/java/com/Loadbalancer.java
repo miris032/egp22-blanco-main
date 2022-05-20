@@ -16,10 +16,10 @@ public class Loadbalancer extends AbstractBehavior<Loadbalancer.Response> {
     private final ActorRef<Kaffeekasse.Request> kaffeekasse;
     private final ActorRef<Kaffeemaschine.Request> kaffeemaschine;
 
-    public static final class MoneySuccess implements Response {}
-    public static final class MoneyFail implements Response {}
-    public static final class CoffeeSuccess implements Response {}
-    public static final class CoffeeFail implements Response {}
+    public static final class MoneyEnough implements Response {}
+    public static final class MoneyNotEnouth implements Response {}
+    public static final class CoffeeEnough implements Response {}
+    public static final class CoffeeNotEnough implements Response {}
 
 
     public static final class KaffeeAbholung implements Request {
@@ -48,49 +48,51 @@ public class Loadbalancer extends AbstractBehavior<Loadbalancer.Response> {
     @Override
     public Receive<Response> createReceive() {
         return newReceiveBuilder()
-                .onMessage(MoneySuccess.class, this::onMoneySuccess)
-                .onMessage(MoneyFail.class, this::onMoneyFail)
-                .onMessage(CoffeeSuccess.class, this::onCoffeeSuccess)
-                .onMessage(CoffeeFail.class, this::onCoffeeFail)
+                .onMessage(MoneyEnough.class, this::onMoneyEnough)
+                .onMessage(MoneyNotEnouth.class, this::onMoneyNotEnough)
+                .onMessage(CoffeeEnough.class, this::onCoffeeEnough)
+                .onMessage(CoffeeNotEnough.class, this::onCoffeeNotEnough)
                 .build();
     }
 
 
     private Behavior<Request> onKaffeeAbholung(KaffeeAbholung request) {
-        getContext().getLog().info("Got a put request from {} ({})!", request.sender.path());
+        //getContext().getLog().info("Got a put request from {} ({})!", request.sender.path());
 
+        kaffeekasse.tell(new Kaffeekasse.Pay(this.getContext().getSelf()));
         return this;
     }
 
 
-    private Behavior<Response> onMoneySuccess(Response command) {
+
+
+
+    private Behavior<Response> onMoneyEnough(Response command) {
+
         // 此时已经检查完账户里有足够的钱了
         getContext().getLog().info("Has enough money!");
 
+        // 再询问咖啡机里咖啡的数量
+        kaffeemaschine.tell(new Kaffeemaschine.GetAmount(this.getContext().getSelf()));
+        return this;
+    }
 
-        //TODO
-        // 接下来直接取咖啡，不用单独写返回咖啡数量的方法？
-        kaffeemaschine.tell(new Kaffeemaschine.GetOneCoffee(this.getContext().getSelf()));
+
+    private Behavior<Response> onCoffeeEnough(CoffeeEnough response) {
 
         return this;
     }
 
 
-    private Behavior<Response> onMoneyFail(MoneyFail response) {
+    private Behavior<Response> onMoneyNotEnough(MoneyNotEnouth response) {
         getContext().getLog().info("money is not enough!");
         //getContext().getLog().info("balance is insufficient, by {}!", loadbalancer);
-        //response.sender.tell(new Kaffeetrinkende.Fail());
+        //kaffeetrinkende.sender.tell(new Kaffeetrinkende.Fail());
         return this;
     }
 
 
-    private Behavior<Response> onCoffeeSuccess(CoffeeSuccess response) {
-
-        return this;
-    }
-
-
-    private Behavior<Response> onCoffeeFail(CoffeeFail response) {
+    private Behavior<Response> onCoffeeNotEnough(CoffeeNotEnough response) {
 
         return this;
     }
