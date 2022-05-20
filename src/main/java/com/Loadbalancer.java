@@ -56,7 +56,7 @@ public class Loadbalancer extends AbstractBehavior<Loadbalancer.Response> {
     private Behavior<Request> onZuKaffeeAbholung(ZuKaffeeAbholung request) {
         //getContext().getLog().info("Got a put request from {} ({})!", request.sender.path());
 
-        request.sender.tell(new Kaffeekasse.Pay(this.getContext().getSelf()));
+        kaffeekasse.tell(new Kaffeekasse.Pay(this.getContext().getSelf()));
         return this;
     }
 
