@@ -14,9 +14,12 @@ public class Kaffeetrinkende extends AbstractBehavior<Kaffeetrinkende.Response> 
 
     private final ActorRef<Kaffeekasse.Request> kaffeekasse;
     private final ActorRef<Loadbalancer.Request> loadbalancer;
+    private final ActorRef<Kaffeemaschine.Request> kaffeemaschine;
 
     public static final class Success implements Response {}
     public static final class Fail implements Response {}
+    public static final class CoffeeEnough implements Response {}
+    public static final class CoffeeNotEnough implements Response {}
 
 
 
@@ -31,6 +34,7 @@ public class Kaffeetrinkende extends AbstractBehavior<Kaffeetrinkende.Response> 
         super(context);
         this.kaffeekasse = kaffeekasse;
         this.loadbalancer = loadbalancer;
+        this.kaffeemaschine = kaffeemaschine;
 
         // Die Kaffeetrinkenden entscheiden sich jeweils zufällig zwischen den beiden Optionen Guthaben aufladen oder Kaffee holen
         // Fall 1: Guthaben aufladen
@@ -72,6 +76,20 @@ public class Kaffeetrinkende extends AbstractBehavior<Kaffeetrinkende.Response> 
     private Behavior<Response> onFail(Fail command) {
         getContext().getLog().info("Fail");
         return Behaviors.stopped();
+    }
+
+
+    private Behavior<Response> onCoffeeEnough(CoffeeEnough command) {
+        getContext().getLog().info("CoffeeEnough");
+        kaffeemaschine.tell(new Kaffeemaschine.GetOneCoffee(this.getContext().getSelf()));
+        return this;
+    }
+
+
+    private Behavior<Response> onCoffeeNotEnough(CoffeeNotEnough command) {
+        getContext().getLog().info("CoffeeNotEnough");
+
+        return this; //?
     }
 
 }
