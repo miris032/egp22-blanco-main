@@ -18,8 +18,6 @@ public class Loadbalancer extends AbstractBehavior<Loadbalancer.Response> {
 
     public static final class MoneyEnough implements Response {}
     public static final class MoneyNotEnouth implements Response {}
-    public static final class CoffeeEnough implements Response {}
-    public static final class CoffeeNotEnough implements Response {}
 
 
     public static final class ZuKaffeeAbholung implements Request {
@@ -50,8 +48,6 @@ public class Loadbalancer extends AbstractBehavior<Loadbalancer.Response> {
         return newReceiveBuilder()
                 .onMessage(MoneyEnough.class, this::onMoneyEnough)
                 .onMessage(MoneyNotEnouth.class, this::onMoneyNotEnough)
-                .onMessage(CoffeeEnough.class, this::onCoffeeEnough)
-                .onMessage(CoffeeNotEnough.class, this::onCoffeeNotEnough)
                 //.onMessage(ZuKaffeeAbholung.class, this::onZuKaffeeAbholung)
                 .build();
     }
@@ -60,12 +56,9 @@ public class Loadbalancer extends AbstractBehavior<Loadbalancer.Response> {
     private Behavior<Request> onZuKaffeeAbholung(ZuKaffeeAbholung request) {
         //getContext().getLog().info("Got a put request from {} ({})!", request.sender.path());
 
-        kaffeekasse.tell(new Kaffeekasse.Pay(this.getContext().getSelf()));
+        request.sender.tell(new Kaffeekasse.Pay(this.getContext().getSelf()));
         return this;
     }
-
-
-
 
 
     private Behavior<Response> onMoneyEnough(Response command) {
@@ -79,22 +72,10 @@ public class Loadbalancer extends AbstractBehavior<Loadbalancer.Response> {
     }
 
 
-    private Behavior<Response> onCoffeeEnough(CoffeeEnough response) {
-
-        return this;
-    }
-
-
     private Behavior<Response> onMoneyNotEnough(MoneyNotEnouth response) {
         getContext().getLog().info("money is not enough!");
         //getContext().getLog().info("balance is insufficient, by {}!", loadbalancer);
         //kaffeetrinkende.sender.tell(new Kaffeetrinkende.Fail());
-        return this;
-    }
-
-
-    private Behavior<Response> onCoffeeNotEnough(CoffeeNotEnough response) {
-
         return this;
     }
 
