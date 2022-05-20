@@ -21,8 +21,8 @@ public class Kaffeemaschine extends AbstractBehavior<Kaffeemaschine.Request> {
     }
 
     public static final class GetOneCoffee implements Request {
-        public ActorRef<Loadbalancer.Response> sender;
-        public GetOneCoffee(ActorRef<Loadbalancer.Response> sender) {
+        public ActorRef<Kaffeetrinkende.Response> sender;
+        public GetOneCoffee(ActorRef<Kaffeetrinkende.Response> sender) {
             this.sender = sender;
         }
     }
@@ -87,8 +87,7 @@ public class Kaffeemaschine extends AbstractBehavior<Kaffeemaschine.Request> {
         // if GetAmount 检测
 
         this.Vorrat -= 1;
-        //request.sender.tell(new Kaffeetrinkende.Success());
-        request.sender.tell(new);
+        request.sender.tell(new Kaffeetrinkende.Success());
         return this;
     }
     

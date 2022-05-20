@@ -18,8 +18,8 @@ public class Kaffeetrinkende extends AbstractBehavior<Kaffeetrinkende.Response> 
 
     public static final class Success implements Response {}
     public static final class Fail implements Response {}
-    /*public static final class CoffeeEnough implements Response {}
-    public static final class CoffeeNotEnough implements Response {}*/
+    public static final class CoffeeEnoughForCustomer implements Response {}
+    public static final class CoffeeNotEnoughForCustomer implements Response {}
 
 
 
@@ -53,8 +53,8 @@ public class Kaffeetrinkende extends AbstractBehavior<Kaffeetrinkende.Response> 
         return newReceiveBuilder()
                 .onMessage(Success.class, this::onSuccess)
                 .onMessage(Fail.class, this::onFail)
-                /*.onMessage(CoffeeEnough.class, this::onCoffeeEnough)
-                .onMessage(CoffeeNotEnough.class, this::onCoffeeNotEnough)*/
+                .onMessage(CoffeeEnoughForCustomer.class, this::onCoffeeEnoughForCustomer)
+                .onMessage(CoffeeNotEnoughForCustomer.class, this::onCoffeeNotEnoughForCustomer)
                 .build();
     }
 
@@ -81,17 +81,17 @@ public class Kaffeetrinkende extends AbstractBehavior<Kaffeetrinkende.Response> 
     }
 
 
-    /*private Behavior<Response> onCoffeeEnough(CoffeeEnough response) {
+    private Behavior<Response> onCoffeeEnoughForCustomer(CoffeeEnoughForCustomer response) {
         getContext().getLog().info("CoffeeEnough");
         kaffeemaschine.tell(new Kaffeemaschine.GetOneCoffee(this.getContext().getSelf()));
         return this;
     }
 
 
-    private Behavior<Response> onCoffeeNotEnough(CoffeeNotEnough response) {
+    private Behavior<Response> onCoffeeNotEnoughForCustomer(CoffeeNotEnoughForCustomer response) {
         getContext().getLog().info("CoffeeNotEnough");
 
         return this; //?
-    }*/
+    }
 
 }

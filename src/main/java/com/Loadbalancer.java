@@ -15,6 +15,7 @@ public class Loadbalancer extends AbstractBehavior<Loadbalancer.Response> {
 
     private final ActorRef<Kaffeekasse.Request> kaffeekasse;
     private final ActorRef<Kaffeemaschine.Request> kaffeemaschine;
+    private final ActorRef<Kaffeetrinkende.Response>
 
     public static final class MoneyEnough implements Response {}
     public static final class MoneyNotEnough implements Response {}
@@ -95,8 +96,8 @@ public class Loadbalancer extends AbstractBehavior<Loadbalancer.Response> {
         // 此时检查完账户里有足够的钱后，也检查完咖啡机里有足够的咖啡了
         getContext().getLog().info("Has enough money!");
 
-        // 取出一个咖啡
-        kaffeemaschine.tell(new Kaffeemaschine.GetOneCoffee(this.getContext().getSelf()));
+        // 反手把此消息告诉kaffeetrinkende
+        kaffeetrinkende.tell(new Kaffeetrinkende.CoffeeEnoughForCustomer(this.getContext().getSelf()));
         return this;
     }
 
