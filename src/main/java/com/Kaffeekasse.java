@@ -13,9 +13,9 @@ public class Kaffeekasse extends AbstractBehavior<Kaffeekasse.Request> {
     public interface Request {}
     private int Guthaben;
 
-    public static final class Charge implements Request {
+    public static final class Recharge implements Request {
         public ActorRef<Kaffeetrinkende.Response> sender;
-        public Charge(ActorRef<Kaffeetrinkende.Response> sender) {
+        public Recharge(ActorRef<Kaffeetrinkende.Response> sender) {
             this.sender = sender;
         }
     }
@@ -48,15 +48,15 @@ public class Kaffeekasse extends AbstractBehavior<Kaffeekasse.Request> {
     @Override
     public Receive<Request> createReceive() {
         return newReceiveBuilder()
-                .onMessage(Charge.class, this::onCharge)
+                .onMessage(Recharge.class, this::onRecharge)
                 .onMessage(Pay.class, this::onPay)
                 .build();
     }
 
 
     // Guthaben aufladen
-    private Behavior<Request> onCharge(Charge request) {
-        getContext().getLog().info("charge 1 Euro for {} ({})!", request.sender.path(), Guthaben);
+    private Behavior<Request> onRecharge(Recharge request) {
+        getContext().getLog().info("recharge 1 Euro for {} ({})!", request.sender.path(), Guthaben);
         this.Guthaben += 1;
         request.sender.tell(new Kaffeetrinkende.Success());
         return this;

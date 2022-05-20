@@ -22,9 +22,9 @@ public class Loadbalancer extends AbstractBehavior<Loadbalancer.Response> {
     public static final class CoffeeNotEnough implements Response {}
 
 
-    public static final class KaffeeAbholung implements Request {
+    public static final class ZuKaffeeAbholung implements Request {
         public final ActorRef<Kaffeetrinkende.Response> sender;
-        public KaffeeAbholung(ActorRef<Kaffeetrinkende.Response> sender) {
+        public ZuKaffeeAbholung(ActorRef<Kaffeetrinkende.Response> sender) {
             this.sender = sender;
         }
     }
@@ -52,11 +52,12 @@ public class Loadbalancer extends AbstractBehavior<Loadbalancer.Response> {
                 .onMessage(MoneyNotEnouth.class, this::onMoneyNotEnough)
                 .onMessage(CoffeeEnough.class, this::onCoffeeEnough)
                 .onMessage(CoffeeNotEnough.class, this::onCoffeeNotEnough)
+                //.onMessage(ZuKaffeeAbholung.class, this::onZuKaffeeAbholung)
                 .build();
     }
 
 
-    private Behavior<Request> onKaffeeAbholung(KaffeeAbholung request) {
+    private Behavior<Request> onZuKaffeeAbholung(ZuKaffeeAbholung request) {
         //getContext().getLog().info("Got a put request from {} ({})!", request.sender.path());
 
         kaffeekasse.tell(new Kaffeekasse.Pay(this.getContext().getSelf()));

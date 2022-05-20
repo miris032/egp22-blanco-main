@@ -35,11 +35,11 @@ public class Kaffeetrinkende extends AbstractBehavior<Kaffeetrinkende.Response> 
         // Die Kaffeetrinkenden entscheiden sich jeweils zufällig zwischen den beiden Optionen Guthaben aufladen oder Kaffee holen
         // Fall 1: Guthaben aufladen
         if (Math.random() < 0.5) {
-            kaffeekasse.tell(new Kaffeekasse.Charge(this.getContext().getSelf()));
+            kaffeekasse.tell(new Kaffeekasse.Recharge(this.getContext().getSelf()));
         }
         // Fall 2 &3 &4: Kaffee holen
         else {
-            loadbalancer.tell(new Loadbalancer.KaffeeAbholung(this.getContext().getSelf()));
+            loadbalancer.tell(new Loadbalancer.ZuKaffeeAbholung(this.getContext().getSelf()));
         }
     }
 
@@ -59,11 +59,11 @@ public class Kaffeetrinkende extends AbstractBehavior<Kaffeetrinkende.Response> 
         // Die Kaffeetrinkenden entscheiden sich jeweils zufällig zwischen den beiden Optionen Guthaben aufladen oder Kaffee holen
         // Fall 1: Guthaben aufladen
         if (Math.random() < 0.5) {
-            kaffeekasse.tell(new Kaffeekasse.Charge(this.getContext().getSelf()));
+            kaffeekasse.tell(new Kaffeekasse.Recharge(this.getContext().getSelf()));
         }
         // Fall 2 &3 &4: zu Kaffee abholen
         else {
-            loadbalancer.tell(new Loadbalancer.KaffeeAbholung(this.getContext().getSelf()));
+            loadbalancer.tell(new Loadbalancer.ZuKaffeeAbholung(this.getContext().getSelf()));
         }
         return this;
     }
