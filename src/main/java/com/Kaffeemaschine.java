@@ -7,22 +7,22 @@ import akka.actor.typed.javadsl.Behaviors;
 import akka.actor.typed.javadsl.Receive;
 
 
-public class Kaffeemaschine extends AbstractBehavior<Kaffeemaschine.Request> {
+public class Kaffeemaschine extends AbstractBehavior<Kaffeemaschine.km> {
 
 
-    public interface Request {}
+    public interface km {}
     private int Vorrat;
 
-    public static final class GetAmount implements Request {
-        public ActorRef<Loadbalancer.Response> sender;
-        public GetAmount(ActorRef<Loadbalancer.Response> sender) {
+    public static final class GetAmount implements km {
+        public ActorRef<Loadbalancer.lb> sender;
+        public GetAmount(ActorRef<Loadbalancer.lb> sender) {
             this.sender = sender;
         }
     }
 
-    public static final class GetOneCoffee implements Request {
-        public ActorRef<Kaffeetrinkende.Response> sender;
-        public GetOneCoffee(ActorRef<Kaffeetrinkende.Response> sender) {
+    public static final class GetOneCoffee implements km {
+        public ActorRef<Kaffeetrinkende.kt> sender;
+        public GetOneCoffee(ActorRef<Kaffeetrinkende.kt> sender) {
             this.sender = sender;
         }
     }
@@ -30,20 +30,20 @@ public class Kaffeemaschine extends AbstractBehavior<Kaffeemaschine.Request> {
 
 
 
-    public static Behavior<Request> create(int Vorrat) {
+    public static Behavior<km> create(int Vorrat) {
         return Behaviors.setup(context -> new Kaffeemaschine(context, Vorrat));
     }
 
 
     // Constructor
-    private Kaffeemaschine(ActorContext<Request> context, int vorrat) {
+    private Kaffeemaschine(ActorContext<km> context, int vorrat) {
         super(context);
         this.Vorrat = vorrat;
     }
 
 
     @Override
-    public Receive<Request> createReceive() {
+    public Receive<km> createReceive() {
         return newReceiveBuilder()
                 .onMessage(GetAmount.class, this::onGetAmount)
                 .onMessage(GetOneCoffee.class, this::onGetOneCoffee)
@@ -66,11 +66,12 @@ public class Kaffeemaschine extends AbstractBehavior<Kaffeemaschine.Request> {
 
 
     // 询问咖啡存量
-    private Behavior<Request> onGetAmount(GetAmount request) {
-        if (this.Vorrat > 0) {
-            request.sender.tell(new Loadbalancer.CoffeeEnough());
+    private Behavior<km> onGetAmount(GetAmount request) {
 
-            // TODO 怎么把存量Vorrat返回给Loadbalancer？
+        // 有足够的咖啡
+        if (this.Vorrat > 0) {
+            // 告诉loadbalancer咖啡数量足够，并返回存量Vorrat
+            request.sender.tell(new Loadbalancer.CoffeeEnough(Vorrat));
         }
         return this;
     }
@@ -81,7 +82,7 @@ public class Kaffeemaschine extends AbstractBehavior<Kaffeemaschine.Request> {
     
 
     // 取一个咖啡
-    private Behavior<Request> onGetOneCoffee(GetOneCoffee request) {
+    private Behavior<km> onGetOneCoffee(GetOneCoffee request) {
         getContext().getLog().info("Got a getOneCoffee request from {} ({})!", request.sender.path(), Vorrat);
 
         // if GetAmount 检测

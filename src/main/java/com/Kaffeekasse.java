@@ -7,22 +7,22 @@ import akka.actor.typed.javadsl.Behaviors;
 import akka.actor.typed.javadsl.Receive;
 
 
-public class Kaffeekasse extends AbstractBehavior<Kaffeekasse.Request> {
+public class Kaffeekasse extends AbstractBehavior<Kaffeekasse.kk> {
 
 
-    public interface Request {}
+    public interface kk {}
     private int Guthaben;
 
-    public static final class Recharge implements Request {
-        public ActorRef<Kaffeetrinkende.Response> sender;
-        public Recharge(ActorRef<Kaffeetrinkende.Response> sender) {
+    public static final class Recharge implements kk {
+        public ActorRef<Kaffeetrinkende.kt> sender;
+        public Recharge(ActorRef<Kaffeetrinkende.kt> sender) {
             this.sender = sender;
         }
     }
 
-    public static final class Pay implements Request {
-        public ActorRef<Loadbalancer.Response> sender;
-        public Pay(ActorRef<Loadbalancer.Response> sender) {
+    public static final class Pay implements kk {
+        public ActorRef<Loadbalancer.lb> sender;
+        public Pay(ActorRef<Loadbalancer.lb> sender) {
             this.sender = sender;
         }
     }
@@ -30,13 +30,13 @@ public class Kaffeekasse extends AbstractBehavior<Kaffeekasse.Request> {
 
 
 
-    public static Behavior<Request> create(int Guthaben) {
+    public static Behavior<kk> create(int Guthaben) {
         return Behaviors.setup(context -> new Kaffeekasse(context, Guthaben));
     }
 
 
     // Constructor
-    private Kaffeekasse(ActorContext<Request> context, int Guthaben) {
+    private Kaffeekasse(ActorContext<kk> context, int Guthaben) {
         super(context);
         this.Guthaben = Guthaben;
 
@@ -46,7 +46,7 @@ public class Kaffeekasse extends AbstractBehavior<Kaffeekasse.Request> {
 
 
     @Override
-    public Receive<Request> createReceive() {
+    public Receive<kk> createReceive() {
         return newReceiveBuilder()
                 .onMessage(Recharge.class, this::onRecharge)
                 .onMessage(Pay.class, this::onPay)
@@ -54,9 +54,8 @@ public class Kaffeekasse extends AbstractBehavior<Kaffeekasse.Request> {
     }
 
 
-    // Fall 1
-    // Guthaben aufladen
-    private Behavior<Request> onRecharge(Recharge request) {
+    // Fall 1: Guthaben aufladen
+    private Behavior<kk> onRecharge(Recharge request) {
         getContext().getLog().info("recharge 1 Euro for {} ({})!", request.sender.path(), Guthaben);
         this.Guthaben += 1;
         request.sender.tell(new Kaffeetrinkende.Success());
@@ -64,9 +63,8 @@ public class Kaffeekasse extends AbstractBehavior<Kaffeekasse.Request> {
     }
 
 
-    // Fall 2 & 3
-    // bezahlen für eine Kaffee
-    private Behavior<Request> onPay(Pay request) {
+    // Fall 2 & 3: bezahlen für eine Kaffee
+    private Behavior<kk> onPay(Pay request) {
         getContext().getLog().info("Got a pay request from {} ({})!", request.sender.path(), Guthaben);
 
         // Fall 2: 账户里有足够的钱

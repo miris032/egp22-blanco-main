@@ -7,30 +7,35 @@ import akka.actor.typed.javadsl.Behaviors;
 import akka.actor.typed.javadsl.Receive;
 
 
-public class Kaffeetrinkende extends AbstractBehavior<Kaffeetrinkende.Response> {
+public class Kaffeetrinkende extends AbstractBehavior<Kaffeetrinkende.kt> {
 
 
-    public interface Response {}
+    public interface kt {}
 
-    private final ActorRef<Kaffeekasse.Request> kaffeekasse;
-    private final ActorRef<Loadbalancer.Request> loadbalancer;
-    private final ActorRef<Kaffeemaschine.Request> kaffeemaschine;
+    private final ActorRef<Kaffeekasse.kk> kaffeekasse;
+    private final ActorRef<Loadbalancer.lb> loadbalancer;
+    private final ActorRef<Kaffeemaschine.km> kaffeemaschine;
 
-    public static final class Success implements Response {}
-    public static final class Fail implements Response {}
-    public static final class CoffeeEnoughForCustomer implements Response {}
-    public static final class CoffeeNotEnoughForCustomer implements Response {}
+    public static final class Success implements kt {}
+    public static final class Fail implements kt {}
+    public static final class ChoiceCoffeeMachine implements kt {
+        public int coffeeMachineIndex;
+        public ChoiceCoffeeMachine(int coffeeMachineIndex) {
+            this.coffeeMachineIndex = coffeeMachineIndex;
+        }
+    }
+    public static final class ChoiceCoffeeMachineFail implements kt {}
 
 
 
 
-    public static Behavior<Response> create(ActorRef<Kaffeekasse.Request> kaffeekasse, ActorRef<Loadbalancer.Request> loadbalancer, ActorRef<Kaffeemaschine.Request> kaffeemaschine) {
+    public static Behavior<kt> create(ActorRef<Kaffeekasse.kk> kaffeekasse, ActorRef<Loadbalancer.lb> loadbalancer, ActorRef<Kaffeemaschine.km> kaffeemaschine) {
         return Behaviors.setup(context -> new Kaffeetrinkende(context, kaffeekasse, loadbalancer, kaffeemaschine));
     }
 
 
     // Constructor
-    private Kaffeetrinkende(ActorContext<Response> context, ActorRef<Kaffeekasse.Request> kaffeekasse, ActorRef<Loadbalancer.Request> loadbalancer, ActorRef<Kaffeemaschine.Request> kaffeemaschine) {
+    private Kaffeetrinkende(ActorContext<kt> context, ActorRef<Kaffeekasse.kk> kaffeekasse, ActorRef<Loadbalancer.lb> loadbalancer, ActorRef<Kaffeemaschine.km> kaffeemaschine) {
         super(context);
         this.kaffeekasse = kaffeekasse;
         this.loadbalancer = loadbalancer;
@@ -49,17 +54,17 @@ public class Kaffeetrinkende extends AbstractBehavior<Kaffeetrinkende.Response> 
 
 
     @Override
-    public Receive<Response> createReceive() {
+    public Receive<kt> createReceive() {
         return newReceiveBuilder()
                 .onMessage(Success.class, this::onSuccess)
                 .onMessage(Fail.class, this::onFail)
-                .onMessage(CoffeeEnoughForCustomer.class, this::onCoffeeEnoughForCustomer)
-                .onMessage(CoffeeNotEnoughForCustomer.class, this::onCoffeeNotEnoughForCustomer)
+                .onMessage(ChoiceCoffeeMachine.class, this::onChoiceCoffeeMachine)
+                .onMessage(ChoiceCoffeeMachineFail.class, this::ChoiceCoffeeMachineFail)
                 .build();
     }
 
 
-    private Behavior<Response> onSuccess(Success command) {
+    private Behavior<kt> onSuccess(Success command) {
         getContext().getLog().info("Successful!");
 
         // Die Kaffeetrinkenden entscheiden sich jeweils zufällig zwischen den beiden Optionen Guthaben aufladen oder Kaffee holen
@@ -75,23 +80,28 @@ public class Kaffeetrinkende extends AbstractBehavior<Kaffeetrinkende.Response> 
     }
 
 
-    private Behavior<Response> onFail(Fail command) {
+    // 咖啡不够了， 程序最终停止
+    private Behavior<kt> onFail(Fail command) {
         getContext().getLog().info("Fail");
         return Behaviors.stopped();
     }
 
 
-    private Behavior<Response> onCoffeeEnoughForCustomer(CoffeeEnoughForCustomer response) {
-        getContext().getLog().info("CoffeeEnough");
+    private Behavior<kt> onChoiceCoffeeMachine(ChoiceCoffeeMachine response) {
+        getContext().getLog().info("Choice coffee machine success");
+
+        // 已选择确认的咖啡机， 接下来从这台咖啡机里取咖啡
         kaffeemaschine.tell(new Kaffeemaschine.GetOneCoffee(this.getContext().getSelf()));
         return this;
     }
 
 
-    private Behavior<Response> onCoffeeNotEnoughForCustomer(CoffeeNotEnoughForCustomer response) {
-        getContext().getLog().info("CoffeeNotEnough");
+    private Behavior<kt> ChoiceCoffeeMachineFail(ChoiceCoffeeMachineFail response) {
+        getContext().getLog().info("Choice coffee machine fail");
 
-        return this; //?
+        // TODO Fall 3？ 还是Fall 4 来着：补全
+
+        return this;
     }
 
 }
