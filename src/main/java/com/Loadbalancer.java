@@ -1,3 +1,8 @@
+// Yuyang Peng, 216417
+// Zefei Gao, 216783
+// Fangshu YU, 208929
+// Zihao Li, 214271
+
 package com;
 import akka.actor.typed.ActorRef;
 import akka.actor.typed.Behavior;
@@ -14,23 +19,33 @@ public class Loadbalancer extends AbstractBehavior<Loadbalancer.lb> {
 
     private final ActorRef<Kaffeekasse.kk> kaffeekasse;
     private final ActorRef<Kaffeemaschine.km> kaffeemaschine;
-    private final ActorRef<Kaffeetrinkende.kt> kaffeetrinkende;
 
     public static final class MoneyEnough implements lb {}
     public static final class MoneyNotEnough implements lb {}
+
     public static final class CoffeeEnough implements lb {
-        public int index;
-        public int num;
-        public CoffeeEnough(int index, int num) {
-            this.index = index;
-            this.num = num;
+        public int Nr;
+        public int Vorrat;
+        public CoffeeEnough(int Nr, int Vorrat) {
+            this.Nr = Nr;
+            this.Vorrat = Vorrat;
         }
     }
-    public static final class CoffeeNotEnough implements lb {}
+
+    /*public static final class CoffeeNotEnough implements lb {
+        public ActorRef<Kaffeemaschine.km> sender;
+        public CoffeeNotEnough(ActorRef<Kaffeemaschine.km> sender) {
+            this.sender = sender;
+        }
+    }*/
 
 
     public static final class ZuKaffeeAbholung implements lb {
         public final ActorRef<Kaffeetrinkende.kt> sender;
+        /////////////////////////////////////////////////////////
+        public int Nr;
+        public int Vorrat;
+        /////////////////////////////////////////////////////////
         public ZuKaffeeAbholung(ActorRef<Kaffeetrinkende.kt> sender) {
             this.sender = sender;
         }
@@ -39,17 +54,17 @@ public class Loadbalancer extends AbstractBehavior<Loadbalancer.lb> {
 
 
 
-    public static Behavior<lb> create(ActorRef<Kaffeekasse.kk> kaffeekasse, ActorRef<Kaffeemaschine.km> kaffeemaschine, ActorRef<Kaffeetrinkende.kt> kaffeetrinkende) {
-        return Behaviors.setup(context -> new Loadbalancer(context, kaffeekasse, kaffeemaschine, kaffeetrinkende));
+    public static Behavior<lb> create(ActorRef<Kaffeekasse.kk> kaffeekasse, ActorRef<Kaffeemaschine.km> kaffeemaschine) {
+        return Behaviors.setup(context -> new Loadbalancer(context, kaffeekasse, kaffeemaschine));
     }
 
 
     // Constructor
-    private Loadbalancer(ActorContext<lb> context, ActorRef<Kaffeekasse.kk> kaffeekasse, ActorRef<Kaffeemaschine.km> kaffeemaschine, ActorRef<Kaffeetrinkende.kt> kaffeetrinkende) {
+    private Loadbalancer(ActorContext<lb> context, ActorRef<Kaffeekasse.kk> kaffeekasse,
+                         ActorRef<Kaffeemaschine.km> kaffeemaschine) {
         super(context);
         this.kaffeekasse = kaffeekasse;
         this.kaffeemaschine = kaffeemaschine;
-        this.kaffeetrinkende = kaffeetrinkende;
     }
 
 
@@ -57,9 +72,9 @@ public class Loadbalancer extends AbstractBehavior<Loadbalancer.lb> {
     public Receive<lb> createReceive() {
         return newReceiveBuilder()
                 .onMessage(MoneyEnough.class, this::onMoneyEnough)
-                .onMessage(MoneyNotEnough.class, this::onMoneyNotEnough)
-                .onMessage(CoffeeEnough.class, this::onCoffeeEnough)
-                .onMessage(CoffeeNotEnough.class, this::onCoffeeNotEnough)
+                .onMessage(ZuKaffeeAbholung.class, this::onMoneyNotEnough)
+                .onMessage(ZuKaffeeAbholung.class, this::onCoffeeEnough)
+                .onMessage(ZuKaffeeAbholung.class, this::onCoffeeNotEnough)
                 .onMessage(ZuKaffeeAbholung.class, this::onZuKaffeeAbholung)
                 .build();
     }
@@ -71,51 +86,65 @@ public class Loadbalancer extends AbstractBehavior<Loadbalancer.lb> {
     }
 
 
-
-
     private Behavior<lb> onMoneyEnough(lb command) {
 
-        // 此时已经检查完账户里有足够的钱了
+        // Das Geld ist schon genug
         getContext().getLog().info("Has enough money!");
 
-        // 再询问咖啡机里咖啡的数量
+        // Dann fragen nach der Vorrat in der Kaffeemaschine
         kaffeemaschine.tell(new Kaffeemaschine.GetAmount(this.getContext().getSelf()));
         return this;
     }
 
 
-    private Behavior<lb> onMoneyNotEnough(MoneyNotEnough response) {
+    private Behavior<lb> onMoneyNotEnough(ZuKaffeeAbholung request) {
         getContext().getLog().info("money is not enough!");
-        // Fall 3(weiter): Auch hier soll dann wieder zufällig zwischen aufladen und Kaffee holen entschieden werden
-        kaffeetrinkende.tell(new Kaffeetrinkende.Success());
+        // Fall 3(weiter): Hier soll dann wieder zufällig zwischen aufladen und Kaffee holen entschieden werden, d.h. zurück zum ganz Beginn
+        request.sender.tell(new Kaffeetrinkende.Success());
         return this;
     }
 
 
-    private Behavior<lb> onCoffeeEnough(CoffeeEnough response) {
+    private Behavior<lb> onCoffeeEnough(ZuKaffeeAbholung request) {
 
-        // 此时检查完账户里有足够的钱后，也检查完咖啡机里有足够的咖啡了
+        // Bis jetzt sind wir schon sicher, dass genug Guthaben vorhanden ist, und es hat auch genug Kaffeevorrat in der Kaffeemaschine
         getContext().getLog().info("Has enough coffee!");
 
-        // TODO 如何接收所有咖啡存量的数据，并选出一台适合的咖啡机？
-        Pair<Integer, Integer> kaffeemaschine1 = new Pair<>(response.index, response.num);
-        Pair<Integer, Integer> kaffeemaschine2 = new Pair<>(response.index, response.num);
-        Pair<Integer, Integer> kaffeemaschine3 = new Pair<>(response.index, response.num);
+        // Und wählt dann die Kaffeemachine aus, die noch den höchsten Vorrat an Kaffee hat
+        Pair<Integer, Integer> kaffeemaschine1 = new Pair<>(request.Nr, request.Vorrat);
+        Pair<Integer, Integer> kaffeemaschine2 = new Pair<>(request.Nr, request.Vorrat);
+        Pair<Integer, Integer> kaffeemaschine3 = new Pair<>(request.Nr, request.Vorrat);
 
-        // TODO 这里需要进行一些操作，对咖啡机们进行横向比较，并得出结论要选择 index为 i的 kaffeemaschine
-        int i = 0;
+        // Bekommt die Kaffeemaschine mit dem höchsten Vorrat
+        Pair<Integer, Integer> maxKaffeemaschine = getMax(kaffeemaschine1, kaffeemaschine2, kaffeemaschine3);
 
-        // 反手把此消息告诉kaffeetrinkende
-        kaffeetrinkende.tell(new Kaffeetrinkende.ChoiceCoffeeMachine(i));
+        // Und gibt die höchsten Vorrat Nachricht an den*die Kaffeetrinkende*n zurück
+        request.sender.tell(new Kaffeetrinkende.ChoiceCoffeeMachine(maxKaffeemaschine.first()));
         return this;
     }
 
 
-    private Behavior<lb> onCoffeeNotEnough(CoffeeNotEnough response) {
+    // Bekommt die Kaffeemaschine mit dem höchsten Vorrat und gibt die entsprechende Paar zurück
+    private static Pair<Integer, Integer> getMax(Pair<Integer, Integer> a, Pair<Integer, Integer> b, Pair<Integer, Integer> c) {
+        if (a.second() > b.second()) {
+            if (a.second() > c.second()) {
+                return a;
+            } else {
+                return c;
 
-        // Fall 4: Die Kaffeemaschine soll eine  Kaffee liefern, aber die keinen Kaffee mehr hat, soll ebenfalls eine Fehlernachricht an den*die Kaffeetrinkende*n gesendet werden.
-        kaffeetrinkende.tell(new Kaffeetrinkende.Fail());
+            }
+        } else if (b.second() > c.second()) {
+            return b;
+        } else {
+            return c;
+        }
+    }
 
+
+    private Behavior<lb> onCoffeeNotEnough(ZuKaffeeAbholung request) {
+
+        // Fall 4: Die Kaffeemaschine soll eine Kaffee liefern, aber die keinen Kaffee mehr hat, soll ebenfalls eine Fehlernachricht an den*die Kaffeetrinkende*n gesendet werden.
+        request.sender.tell(new Kaffeetrinkende.Fail());
         return this;
     }
 

@@ -1,3 +1,8 @@
+// Yuyang Peng, 216417
+// Zefei Gao, 216783
+// Fangshu YU, 208929
+// Zihao Li, 214271
+
 package com;
 import akka.actor.typed.ActorRef;
 import akka.actor.typed.Behavior;
@@ -67,13 +72,13 @@ public class Kaffeekasse extends AbstractBehavior<Kaffeekasse.kk> {
     private Behavior<kk> onPay(Pay request) {
         getContext().getLog().info("Got a pay request from {} ({})!", request.sender.path(), Guthaben);
 
-        // Fall 2: 账户里有足够的钱
+        // Fall 2: Hat genug Geld
         if (this.Guthaben > 0) {
             this.Guthaben -= 1;
             request.sender.tell(new Loadbalancer.MoneyEnough());
         }
 
-        // Fall 3: 账户里没有足够的钱
+        // Fall 3: Kein genug Geld
         else {
             request.sender.tell(new Loadbalancer.MoneyNotEnough());
         }

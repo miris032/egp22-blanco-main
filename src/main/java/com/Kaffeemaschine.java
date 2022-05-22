@@ -1,3 +1,8 @@
+// Yuyang Peng, 216417
+// Zefei Gao, 216783
+// Fangshu YU, 208929
+// Zihao Li, 214271
+
 package com;
 import akka.actor.typed.ActorRef;
 import akka.actor.typed.Behavior;
@@ -11,7 +16,7 @@ public class Kaffeemaschine extends AbstractBehavior<Kaffeemaschine.km> {
 
 
     public interface km {}
-    private int index;
+    private int Nr;
     private int Vorrat;
 
     public static final class GetAmount implements km {
@@ -31,15 +36,15 @@ public class Kaffeemaschine extends AbstractBehavior<Kaffeemaschine.km> {
 
 
 
-    public static Behavior<km> create(int index, int Vorrat) {
-        return Behaviors.setup(context -> new Kaffeemaschine(context, index, Vorrat));
+    public static Behavior<km> create(int Nr, int Vorrat) {
+        return Behaviors.setup(context -> new Kaffeemaschine(context, Nr, Vorrat));
     }
 
 
     // Constructor
-    private Kaffeemaschine(ActorContext<km> context, int index, int vorrat) {
+    private Kaffeemaschine(ActorContext<km> context, int Nr, int vorrat) {
         super(context);
-        this.index = index;
+        this.Nr = Nr;
         this.Vorrat = vorrat;
     }
 
@@ -67,13 +72,13 @@ public class Kaffeemaschine extends AbstractBehavior<Kaffeemaschine.km> {
 
 
 
-    // 询问咖啡存量
+    // Fragt nach den Kaffeevorrat
     private Behavior<km> onGetAmount(GetAmount request) {
 
-        // 有足够的咖啡
         if (this.Vorrat > 0) {
-            // 告诉loadbalancer咖啡数量足够，并返回存量Vorrat
-            request.sender.tell(new Loadbalancer.CoffeeEnough(index, Vorrat));
+            // Sagt loadbalancer, es hat genuge Kaffee, und gibt Vorrat zurück
+            request.sender.tell(new Loadbalancer.CoffeeEnough(Nr, Vorrat));
+            //request.sender.tell(new Loadbalancer.CoffeeEnough());
         }
         return this;
     }
@@ -83,11 +88,9 @@ public class Kaffeemaschine extends AbstractBehavior<Kaffeemaschine.km> {
 
     
 
-    // Hat die Voraussetzung erfüllt und holt jetzt eine Kaffe ab
+    // Hat alle Voraussetzung erfüllt und holt jetzt eine Kaffe ab
     private Behavior<km> onGetOneCoffee(GetOneCoffee request) {
         getContext().getLog().info("Got a getOneCoffee request from {} ({})!", request.sender.path(), Vorrat);
-
-        // if GetAmount 检测
 
         this.Vorrat -= 1;
         request.sender.tell(new Kaffeetrinkende.Success());

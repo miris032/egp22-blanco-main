@@ -1,3 +1,8 @@
+// Yuyang Peng, 216417
+// Zefei Gao, 216783
+// Fangshu YU, 208929
+// Zihao Li, 214271
+
 package com;
 import akka.actor.typed.ActorRef;
 import akka.actor.typed.Behavior;
@@ -19,9 +24,9 @@ public class Kaffeetrinkende extends AbstractBehavior<Kaffeetrinkende.kt> {
     public static final class Success implements kt {}
     public static final class Fail implements kt {}
     public static final class ChoiceCoffeeMachine implements kt {
-        public int coffeeMachineIndex;
-        public ChoiceCoffeeMachine(int coffeeMachineIndex) {
-            this.coffeeMachineIndex = coffeeMachineIndex;
+        public int coffeeMachineNr;
+        public ChoiceCoffeeMachine(int coffeeMachineNr) {
+            this.coffeeMachineNr = coffeeMachineNr;
         }
     }
 
@@ -80,15 +85,15 @@ public class Kaffeetrinkende extends AbstractBehavior<Kaffeetrinkende.kt> {
 
     // Fall 4(weiter): Wenn Fail, soll der*die Kaffeetrinkende aber keine weiteren Nachrichten senden, und stoppt der Programm
     private Behavior<kt> onFail(Fail command) {
-        getContext().getLog().info("Fail");
+        getContext().getLog().info("Fail, Program stop!");
         return Behaviors.stopped();
     }
 
 
-    private Behavior<kt> onChoiceCoffeeMachine(ChoiceCoffeeMachine response) {
+    private Behavior<kt> onChoiceCoffeeMachine(ChoiceCoffeeMachine request) {
         getContext().getLog().info("Choice coffee machine success");
 
-        // 已选择确认的咖啡机， 接下来从这台咖啡机里取咖啡
+        // Hat die Kaffeemaschine bestimmen, holt dann eine Kaffee an diese Kaffeemaschine ab
         kaffeemaschine.tell(new Kaffeemaschine.GetOneCoffee(this.getContext().getSelf()));
         return this;
     }
