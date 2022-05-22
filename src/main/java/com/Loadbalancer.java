@@ -83,8 +83,8 @@ public class Loadbalancer extends AbstractBehavior<Loadbalancer.lb> {
 
     private Behavior<lb> onMoneyNotEnough(MoneyNotEnough response) {
         getContext().getLog().info("money is not enough!");
-        //getContext().getLog().info("balance is insufficient, by {}!", loadbalancer);
-        //kaffeetrinkende.sender.tell(new Kaffeetrinkende.Fail());
+        // Fall 3(weiter): Auch hier soll dann wieder zufällig zwischen aufladen und Kaffee holen entschieden werden
+        kaffeetrinkende.tell(new Kaffeetrinkende.Success());
         return this;
     }
 
@@ -108,7 +108,8 @@ public class Loadbalancer extends AbstractBehavior<Loadbalancer.lb> {
 
     private Behavior<lb> onCoffeeNotEnough(CoffeeNotEnough response) {
 
-        // TODO Fall 3？ 还是Fall 4 来着：补全
+        // Fall 4: Die Kaffeemaschine soll eine  Kaffee liefern, aber die keinen Kaffee mehr hat, soll ebenfalls eine Fehlernachricht an den*die Kaffeetrinkende*n gesendet werden.
+        kaffeetrinkende.tell(new Kaffeetrinkende.Fail());
 
         return this;
     }

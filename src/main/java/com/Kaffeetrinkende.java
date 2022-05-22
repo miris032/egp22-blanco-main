@@ -24,7 +24,6 @@ public class Kaffeetrinkende extends AbstractBehavior<Kaffeetrinkende.kt> {
             this.coffeeMachineIndex = coffeeMachineIndex;
         }
     }
-    public static final class ChoiceCoffeeMachineFail implements kt {}
 
 
 
@@ -46,7 +45,7 @@ public class Kaffeetrinkende extends AbstractBehavior<Kaffeetrinkende.kt> {
         if (Math.random() < 0.5) {
             kaffeekasse.tell(new Kaffeekasse.Recharge(this.getContext().getSelf()));
         }
-        // Fall 2 &3 &4: Kaffee holen
+        // Fall 2 &3 &4: Zu Kaffee abholen
         else {
             loadbalancer.tell(new Loadbalancer.ZuKaffeeAbholung(this.getContext().getSelf()));
         }
@@ -59,7 +58,6 @@ public class Kaffeetrinkende extends AbstractBehavior<Kaffeetrinkende.kt> {
                 .onMessage(Success.class, this::onSuccess)
                 .onMessage(Fail.class, this::onFail)
                 .onMessage(ChoiceCoffeeMachine.class, this::onChoiceCoffeeMachine)
-                .onMessage(ChoiceCoffeeMachineFail.class, this::ChoiceCoffeeMachineFail)
                 .build();
     }
 
@@ -72,7 +70,7 @@ public class Kaffeetrinkende extends AbstractBehavior<Kaffeetrinkende.kt> {
         if (Math.random() < 0.5) {
             kaffeekasse.tell(new Kaffeekasse.Recharge(this.getContext().getSelf()));
         }
-        // Fall 2 &3 &4: zu Kaffee abholen
+        // Fall 2 &3 &4: Zu Kaffee abholen
         else {
             loadbalancer.tell(new Loadbalancer.ZuKaffeeAbholung(this.getContext().getSelf()));
         }
@@ -80,7 +78,7 @@ public class Kaffeetrinkende extends AbstractBehavior<Kaffeetrinkende.kt> {
     }
 
 
-    // 咖啡不够了， 程序最终停止
+    // Fall 4(weiter): Wenn Fail, soll der*die Kaffeetrinkende aber keine weiteren Nachrichten senden, und stoppt der Programm
     private Behavior<kt> onFail(Fail command) {
         getContext().getLog().info("Fail");
         return Behaviors.stopped();
@@ -92,15 +90,6 @@ public class Kaffeetrinkende extends AbstractBehavior<Kaffeetrinkende.kt> {
 
         // 已选择确认的咖啡机， 接下来从这台咖啡机里取咖啡
         kaffeemaschine.tell(new Kaffeemaschine.GetOneCoffee(this.getContext().getSelf()));
-        return this;
-    }
-
-
-    private Behavior<kt> ChoiceCoffeeMachineFail(ChoiceCoffeeMachineFail response) {
-        getContext().getLog().info("Choice coffee machine fail");
-
-        // TODO Fall 3？ 还是Fall 4 来着：补全
-
         return this;
     }
 
