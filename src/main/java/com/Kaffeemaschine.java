@@ -76,6 +76,7 @@ public class Kaffeemaschine extends AbstractBehavior<Kaffeemaschine.km> {
     private Behavior<km> onGetAmount(GetAmount request) {
 
         if (this.Vorrat > 0) {
+
             // Sagt loadbalancer, es hat genuge Kaffee, und gibt Vorrat zurück
             request.sender.tell(new Loadbalancer.CoffeeEnough(Nr, Vorrat));
             //request.sender.tell(new Loadbalancer.CoffeeEnough());
