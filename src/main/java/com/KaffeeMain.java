@@ -40,7 +40,7 @@ public class KaffeeMain extends AbstractBehavior<KaffeeMain.StartMessage> {
         ActorRef<Kaffeemaschine.km> kaffeemaschine2 = getContext().spawn(Kaffeemaschine.create(2, 10), "kaffeemaschine2");
         ActorRef<Kaffeemaschine.km> kaffeemaschine3 = getContext().spawn(Kaffeemaschine.create(3, 10), "kaffeemaschine3");
 
-        ActorRef<Loadbalancer.lb> loadbalancer = getContext().spawn(Loadbalancer.create(kaffeekasse, kaffeemaschine1), "loadbalancer");
+        ActorRef<Loadbalancer.lb> loadbalancer = getContext().spawn(Loadbalancer.create(kaffeekasse, kaffeemaschine1, kaffeemaschine2, kaffeemaschine3), "loadbalancer");
 
         ActorRef<Kaffeetrinkende.kt> kaffeetrinkender1 = getContext().spawn(Kaffeetrinkende.create(kaffeekasse, loadbalancer, kaffeemaschine1), "kaffeetrinkender1");
         ActorRef<Kaffeetrinkende.kt> kaffeetrinkender2 = getContext().spawn(Kaffeetrinkende.create(kaffeekasse, loadbalancer, kaffeemaschine2), "kaffeetrinkender2");

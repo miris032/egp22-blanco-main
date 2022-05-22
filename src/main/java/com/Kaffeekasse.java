@@ -61,7 +61,7 @@ public class Kaffeekasse extends AbstractBehavior<Kaffeekasse.kk> {
 
     // Fall 1: Guthaben aufladen
     private Behavior<kk> onRecharge(Recharge request) {
-        getContext().getLog().info("recharge 1 Euro for {} ({})!", request.sender.path(), Guthaben);
+        getContext().getLog().info("recharge 1 Euro! for {} ({})", request.sender.path(), Guthaben);
         this.Guthaben += 1;
         request.sender.tell(new Kaffeetrinkende.Success());
         return this;
@@ -70,7 +70,7 @@ public class Kaffeekasse extends AbstractBehavior<Kaffeekasse.kk> {
 
     // Fall 2 & 3: bezahlen für eine Kaffee
     private Behavior<kk> onPay(Pay request) {
-        getContext().getLog().info("Got a pay request from {} ({})!", request.sender.path(), Guthaben);
+        getContext().getLog().info("Got a pay request! from {} ({})", request.sender.path(), Guthaben);
 
         // Fall 2: Hat genug Geld
         if (this.Guthaben > 0) {

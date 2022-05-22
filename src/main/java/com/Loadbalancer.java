@@ -12,13 +12,17 @@ import akka.actor.typed.javadsl.Behaviors;
 import akka.actor.typed.javadsl.Receive;
 import akka.japi.Pair;
 
+import java.util.Objects;
+
 
 public class Loadbalancer extends AbstractBehavior<Loadbalancer.lb> {
 
     public interface lb {}
 
     private final ActorRef<Kaffeekasse.kk> kaffeekasse;
-    private final ActorRef<Kaffeemaschine.km> kaffeemaschine;
+    private final ActorRef<Kaffeemaschine.km> kaffeemaschine1;
+    private final ActorRef<Kaffeemaschine.km> kaffeemaschine2;
+    private final ActorRef<Kaffeemaschine.km> kaffeemaschine3;
 
     public static final class MoneyEnough implements lb {}
     public static final class MoneyNotEnough implements lb {}
@@ -42,10 +46,8 @@ public class Loadbalancer extends AbstractBehavior<Loadbalancer.lb> {
 
     public static final class ZuKaffeeAbholung implements lb {
         public final ActorRef<Kaffeetrinkende.kt> sender;
-        /////////////////////////////////////////////////////////
         public int Nr;
         public int Vorrat;
-        /////////////////////////////////////////////////////////
         public ZuKaffeeAbholung(ActorRef<Kaffeetrinkende.kt> sender) {
             this.sender = sender;
         }
@@ -54,17 +56,24 @@ public class Loadbalancer extends AbstractBehavior<Loadbalancer.lb> {
 
 
 
-    public static Behavior<lb> create(ActorRef<Kaffeekasse.kk> kaffeekasse, ActorRef<Kaffeemaschine.km> kaffeemaschine) {
-        return Behaviors.setup(context -> new Loadbalancer(context, kaffeekasse, kaffeemaschine));
+    public static Behavior<lb> create(ActorRef<Kaffeekasse.kk> kaffeekasse,
+                                      ActorRef<Kaffeemaschine.km> kaffeemaschine1,
+                                      ActorRef<Kaffeemaschine.km> kaffeemaschine2,
+                                      ActorRef<Kaffeemaschine.km> kaffeemaschine3) {
+        return Behaviors.setup(context -> new Loadbalancer(context, kaffeekasse, kaffeemaschine1, kaffeemaschine2, kaffeemaschine3));
     }
 
 
     // Constructor
     private Loadbalancer(ActorContext<lb> context, ActorRef<Kaffeekasse.kk> kaffeekasse,
-                         ActorRef<Kaffeemaschine.km> kaffeemaschine) {
+                         ActorRef<Kaffeemaschine.km> kaffeemaschine1,
+                         ActorRef<Kaffeemaschine.km> kaffeemaschine2,
+                         ActorRef<Kaffeemaschine.km> kaffeemaschine3) {
         super(context);
         this.kaffeekasse = kaffeekasse;
-        this.kaffeemaschine = kaffeemaschine;
+        this.kaffeemaschine1 = kaffeemaschine1;
+        this.kaffeemaschine2 = kaffeemaschine2;
+        this.kaffeemaschine3 = kaffeemaschine3;
     }
 
 
@@ -92,13 +101,18 @@ public class Loadbalancer extends AbstractBehavior<Loadbalancer.lb> {
         getContext().getLog().info("Has enough money!");
 
         // Dann fragen nach der Vorrat in der Kaffeemaschine
-        kaffeemaschine.tell(new Kaffeemaschine.GetAmount(this.getContext().getSelf()));
+        kaffeemaschine1.tell(new Kaffeemaschine.GetAmount(this.getContext().getSelf()));
+        kaffeemaschine2.tell(new Kaffeemaschine.GetAmount(this.getContext().getSelf()));
+        kaffeemaschine3.tell(new Kaffeemaschine.GetAmount(this.getContext().getSelf()));
         return this;
     }
 
 
     private Behavior<lb> onMoneyNotEnough(ZuKaffeeAbholung request) {
-        getContext().getLog().info("money is not enough!");
+
+        //getContext().getLog().info("money is not enough!");
+        getContext().getLog().info("money is not enough! for {} ({})!", request.sender.path(), kaffeekasse);
+
         // Fall 3(weiter): Hier soll dann wieder zufällig zwischen aufladen und Kaffee holen entschieden werden, d.h. zurück zum ganz Beginn
         request.sender.tell(new Kaffeetrinkende.Success());
         return this;
@@ -126,6 +140,12 @@ public class Loadbalancer extends AbstractBehavior<Loadbalancer.lb> {
 
     // Bekommt die Kaffeemaschine mit dem höchsten Vorrat und gibt die entsprechende Paar zurück
     private static Pair<Integer, Integer> getMax(Pair<Integer, Integer> a, Pair<Integer, Integer> b, Pair<Integer, Integer> c) {
+
+        // Wenn die Vorräte gleich sind
+        if (Objects.equals(a.second(), b.second()) && Objects.equals(a.second(), c.second())) {
+            return a;
+        }
+
         if (a.second() > b.second()) {
             if (a.second() > c.second()) {
                 return a;
