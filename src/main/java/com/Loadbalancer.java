@@ -80,11 +80,11 @@ public class Loadbalancer extends AbstractBehavior<Loadbalancer.lb> {
     @Override
     public Receive<lb> createReceive() {
         return newReceiveBuilder()
+                .onMessage(ZuKaffeeAbholung.class, this::onZuKaffeeAbholung)
                 .onMessage(MoneyEnough.class, this::onMoneyEnough)
                 .onMessage(ZuKaffeeAbholung.class, this::onMoneyNotEnough)
                 .onMessage(ZuKaffeeAbholung.class, this::onCoffeeEnough)
                 .onMessage(ZuKaffeeAbholung.class, this::onCoffeeNotEnough)
-                .onMessage(ZuKaffeeAbholung.class, this::onZuKaffeeAbholung)
                 .build();
     }
 
