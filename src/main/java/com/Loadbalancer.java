@@ -5,6 +5,7 @@ import akka.actor.typed.javadsl.AbstractBehavior;
 import akka.actor.typed.javadsl.ActorContext;
 import akka.actor.typed.javadsl.Behaviors;
 import akka.actor.typed.javadsl.Receive;
+import akka.japi.Pair;
 
 
 public class Loadbalancer extends AbstractBehavior<Loadbalancer.lb> {
@@ -18,8 +19,10 @@ public class Loadbalancer extends AbstractBehavior<Loadbalancer.lb> {
     public static final class MoneyEnough implements lb {}
     public static final class MoneyNotEnough implements lb {}
     public static final class CoffeeEnough implements lb {
+        public int index;
         public int num;
-        public CoffeeEnough(int num) {
+        public CoffeeEnough(int index, int num) {
+            this.index = index;
             this.num = num;
         }
     }
@@ -95,7 +98,9 @@ public class Loadbalancer extends AbstractBehavior<Loadbalancer.lb> {
         getContext().getLog().info("Has enough coffee!");
 
         // TODO 如何接收所有咖啡存量的数据，并选出一台适合的咖啡机？
-
+        Pair<Integer, Integer> kaffeemaschine1 = new Pair<>(response.index, response.num);
+        Pair<Integer, Integer> kaffeemaschine2 = new Pair<>(response.index, response.num);
+        Pair<Integer, Integer> kaffeemaschine3 = new Pair<>(response.index, response.num);
 
         // TODO 这里需要进行一些操作，对咖啡机们进行横向比较，并得出结论要选择 index为 i的 kaffeemaschine
         int i = 0;

@@ -11,6 +11,7 @@ public class Kaffeemaschine extends AbstractBehavior<Kaffeemaschine.km> {
 
 
     public interface km {}
+    private int index;
     private int Vorrat;
 
     public static final class GetAmount implements km {
@@ -30,14 +31,15 @@ public class Kaffeemaschine extends AbstractBehavior<Kaffeemaschine.km> {
 
 
 
-    public static Behavior<km> create(int Vorrat) {
-        return Behaviors.setup(context -> new Kaffeemaschine(context, Vorrat));
+    public static Behavior<km> create(int index, int Vorrat) {
+        return Behaviors.setup(context -> new Kaffeemaschine(context, index, Vorrat));
     }
 
 
     // Constructor
-    private Kaffeemaschine(ActorContext<km> context, int vorrat) {
+    private Kaffeemaschine(ActorContext<km> context, int index, int vorrat) {
         super(context);
+        this.index = index;
         this.Vorrat = vorrat;
     }
 
@@ -71,7 +73,7 @@ public class Kaffeemaschine extends AbstractBehavior<Kaffeemaschine.km> {
         // 有足够的咖啡
         if (this.Vorrat > 0) {
             // 告诉loadbalancer咖啡数量足够，并返回存量Vorrat
-            request.sender.tell(new Loadbalancer.CoffeeEnough(Vorrat));
+            request.sender.tell(new Loadbalancer.CoffeeEnough(index, Vorrat));
         }
         return this;
     }
@@ -81,7 +83,7 @@ public class Kaffeemaschine extends AbstractBehavior<Kaffeemaschine.km> {
 
     
 
-    // 取一个咖啡
+    // Hat die Voraussetzung erfüllt und holt jetzt eine Kaffe ab
     private Behavior<km> onGetOneCoffee(GetOneCoffee request) {
         getContext().getLog().info("Got a getOneCoffee request from {} ({})!", request.sender.path(), Vorrat);
 
